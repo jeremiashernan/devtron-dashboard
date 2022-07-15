@@ -1,7 +1,7 @@
 import { Routes, SourceTypeMap, TriggerType, ViewType } from '../../config'
 import { get, post } from '../../services/api'
-import { CiPipelineSourceTypeBaseOptions } from './ciPipeline.util'
 import { getSourceConfig, getWebhookDataMetaConfig } from '../../services/service'
+import { CiPipelineSourceTypeBaseOptions } from '../CIPipelineN/ciPipeline.utils'
 import { MaterialType, Githost, PatchAction, ScriptType, PluginType, BuildStageType, RefVariableType } from './types'
 
 const emptyStepsData = () => {
@@ -333,6 +333,7 @@ function createMaterialList(ciPipeline, gitMaterials: MaterialType[], gitHost: G
             ciMaterialSet.add(mat.gitMaterialId)
 
             const sourceInfo = getSourceTypeAndValue(mat)
+            console.log(sourceInfo)
             return {
                 id: mat.id,
                 gitMaterialId: mat.gitMaterialId,

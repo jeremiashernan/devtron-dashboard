@@ -26,6 +26,7 @@ import { ReactComponent as Error } from '../../../../assets/icons/ic-error-excla
 import { getHostURLConfiguration } from '../../../../services/service'
 import { getCIWebhookRes } from './ciWebhook.service'
 import { workflow } from './workflow.data'
+import { node } from 'prop-types'
 
 export const TriggerViewContext = createContext({
     invalidateCache: false,
@@ -73,6 +74,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
             webhhookTimeStampOrder: 'DESC',
             showMaterialRegexModal: false,
             filteredCIPipelines: [],
+            regex: '',
         }
         this.refreshMaterial = this.refreshMaterial.bind(this)
         this.onClickCIMaterial = this.onClickCIMaterial.bind(this)
@@ -219,6 +221,19 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
             })
     }
 
+    onSetRegexValue = () => {
+        console.log(this.state.workflowId && this.state.workflowId)
+        const ciPipeline = this.state.filteredCIPipelines?.find(
+            (_ciPipeline) => _ciPipeline?.id == this.state.workflowId,
+        )
+        for (let _cm of ciPipeline.ciMaterial) {
+            const regex = _cm.source.find((_rc) => _rc.type === SourceTypeMap.BranchRegex)?.value
+            this.setState({
+                regex: regex,
+            })
+        }
+    }
+
     onClickCIMaterial(ciNodeId: string, ciPipelineName: string, preserveMaterialSelection: boolean) {
         ReactGA.event({
             category: 'Trigger View',
@@ -262,22 +277,25 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
                                 return mat.source
                             }
                             let _value, isBranchRegex
-                            if (mat.source.length > 1) {
+                            if (mat.source.length > 0) {
                                 for (let _source of mat.source) {
+                                    //checking if in ci material source is regex but value is not available
                                     if (_source.type === SourceTypeMap.BranchRegex) {
                                         if (!_value) {
                                             isBranchRegex = true
                                             continue
                                         }
                                     } else if (_source.type === SourceTypeMap.BranchFixed) {
+                                        //checking if in ci material source is fixed but value is available
                                         if (!isBranchRegex) {
                                             _value = _source.value
                                             continue
                                         }
                                     }
                                 }
+                            } else {
+                                isBranchRegex = false
                             }
-
                             showRegexModal = isBranchRegex && !_value
                             break
                         }
@@ -743,6 +761,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
                         onClickShowBranchRegexModal={this.onClickShowBranchRegexModal}
                         showCIModal={this.state.showCIModal}
                         onShowCIModal={this.onShowCIModal}
+                        regex={this.state.regex}
                     />
                 </>
             )
@@ -805,6 +824,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
                             history={this.props.history}
                             location={this.props.location}
                             match={this.props.match}
+                            onSetRegexValue={this.onSetRegexValue}
                         />
                     )
                 })}

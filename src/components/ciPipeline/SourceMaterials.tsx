@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import ReactSelect from 'react-select'
 import error from '../../assets/icons/misc/errorInfo.svg'
 import git from '../../assets/icons/git/git.svg'
-import { reactSelectStyles } from './ciPipeline.util'
 import { getCustomOptionSelectionStyle } from '../v2/common/ReactSelect.utils'
 import { DropdownIndicator } from '../charts/charts.util'
 import { ReactComponent as Info } from '../../assets/icons/ic-info-outline-purple.svg'
@@ -13,6 +12,7 @@ import { ConfigureWebhook } from './ConfigureWebhook'
 import { MaterialType, CiPipelineSourceTypeOption, Githost } from './types'
 import InfoColourBar from '../common/infocolourBar/InfoColourbar'
 import { ReactComponent as InfoIcon } from '../../assets/icons/info-filled.svg'
+import { reactSelectStyles } from '../CIPipelineN/ciPipeline.utils'
 
 export interface SourceMaterialsProps {
     materials: MaterialType[]
@@ -24,7 +24,7 @@ export interface SourceMaterialsProps {
     ciPipelineSourceTypeOptions: CiPipelineSourceTypeOption[]
     canEditPipeline: boolean
     webhookData?: WebhookCIProps
-    // isBranchRegex?: (material) => any
+    isBranchRegex?: (material) => any
 }
 
 export interface WebhookCIProps {
@@ -129,7 +129,10 @@ export const SourceMaterials: React.FC<SourceMaterialsProps> = function (props) 
                         ) || props.ciPipelineSourceTypeOptions[0]
                 }
                 let errorObj = props.validationRules?.sourceValue(mat.value)
-                const isBranchRegex = mat.type !== SourceTypeMap.WEBHOOK && mat.type === SourceTypeMap.BranchRegex
+                {
+                    console.log(mat)
+                }
+                const isBranchRegex = mat.type === SourceTypeMap.BranchRegex
                 const isBranchFixed = mat.type !== SourceTypeMap.WEBHOOK && mat.type === SourceTypeMap.BranchFixed
                 return (
                     <div key={`source-material-${index}`}>
