@@ -17,7 +17,7 @@ import { NavLink } from 'react-router-dom'
 import { ReactComponent as Dropdown } from '../../assets/icons/ic-chevron-down.svg'
 import { ReactComponent as Add } from '../../assets/icons/ic-add.svg'
 import { ReactComponent as WarningIcon } from '../../assets/icons/ic-warning.svg'
-import warningIconSrc from '../../assets/icons/ic-warning.svg'
+import warningIconSrc from '../../assets/icons/ic-warning-y6.svg'
 import './CIConfig.scss'
 import ReactSelect, { components } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
@@ -53,9 +53,9 @@ export default function CIConfig({ respondOnSuccess, ...rest }) {
                 sortObjectArrayAlphabetically(sourceConfig.material, 'name')
             setSourceConfig(sourceConfig)
             setCIConfig(ciConfig)
-            setLoading(false)
         } catch (err) {
             showError(err)
+        } finally {
             setLoading(false)
         }
     }
@@ -65,10 +65,11 @@ export default function CIConfig({ respondOnSuccess, ...rest }) {
             setLoading(true)
             const { result } = await getCIConfig(+appId)
             setCIConfig(result)
-            setLoading(false)
             respondOnSuccess()
         } catch (err) {
             showError(err)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -157,7 +158,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
     }
     const [selectedTargetPlatforms, setSelectedTargetPlatforms] = useState<OptionType[]>(_selectedPlatforms)
     const [showCustomPlatformWarning, setShowCustomPlatformWarning] = useState<boolean>(_customTargetPlatorm)
-    const [showCustmPlatformConfirmation, setShowCustmPlatformConfirmation] = useState<boolean>(false)
+    const [showCustomPlatformConfirmation, setShowCustomPlatformConfirmation] = useState<boolean>(false)
     useEffect(() => {
         let args = []
         if (ciConfig && ciConfig.dockerBuildConfig.args) {
@@ -199,8 +200,8 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
             }
         }
         if (showCustomPlatformWarning) {
-            setShowCustmPlatformConfirmation(!showCustmPlatformConfirmation)
-            if (!showCustmPlatformConfirmation) {
+            setShowCustomPlatformConfirmation(!showCustomPlatformConfirmation)
+            if (!showCustomPlatformConfirmation) {
                 return
             }
         }
@@ -237,23 +238,24 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
             setLoading(false)
         }
     }
-    function handleArgsChange(index, k, v) {
+
+    const handleArgsChange = (index, k, v): void => {
         setArgs((arr) => {
             arr[index] = { k: k, v: v, keyError: '', valueError: '' }
             return Array.from(arr)
         })
     }
 
-    function toggleCollapse() {
+    const toggleCollapse = (): void => {
         setIsCollapsed(!isCollapsed)
     }
 
-    function handleFileLocationChange(selectedMaterial) {
+    const handleFileLocationChange = (selectedMaterial): void => {
         setSelectedMaterial(selectedMaterial)
         repository.value = selectedMaterial.name
     }
 
-    function handleRegistryChange(selectedRegistry) {
+    const handleRegistryChange = (selectedRegistry): void => {
         setSelectedRegistry(selectedRegistry)
         registry.value = selectedRegistry.id
     }
@@ -274,7 +276,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         },
     }
 
-    const containerRegistryOption = (props) => {
+    const containerRegistryOption = (props): JSX.Element => {
         props.selectProps.styles.option = getCustomOptionSelectionStyle()
         return (
             <components.Option {...props}>
@@ -286,7 +288,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         )
     }
 
-    const containerRegistryMenuList = (props) => {
+    const containerRegistryMenuList = (props): JSX.Element => {
         return (
             <components.MenuList {...props}>
                 {props.children}
@@ -302,7 +304,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         )
     }
 
-    const containerRegistryControls = (props) => {
+    const containerRegistryControls = (props): JSX.Element => {
         let value = ''
         if (props.hasValue) {
             value = props.getValue()[0].registryType
@@ -315,7 +317,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         )
     }
 
-    const repositoryOption = (props) => {
+    const repositoryOption = (props): JSX.Element => {
         props.selectProps.styles.option = getCustomOptionSelectionStyle()
         return (
             <components.Option {...props}>
@@ -335,7 +337,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         )
     }
 
-    const repositoryControls = (props) => {
+    const repositoryControls = (props): JSX.Element => {
         let value = ''
         if (props.hasValue) {
             value = props.getValue()[0].url
@@ -356,7 +358,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         return (
             <components.MenuList {...props}>
                 <div className="cn-5 pl-12 pt-4 pb-4" style={{ fontStyle: 'italic' }}>
-                    Type to enter a custom value. Press Enter to accept.
+                    Type to enter a target platform. Press Enter to accept.
                 </div>
                 {props.children}
             </components.MenuList>
@@ -393,7 +395,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
             </div>
         )
     }
-    function handlePlatformChange(selectedValue): void {
+    const handlePlatformChange = (selectedValue): void => {
         setSelectedTargetPlatforms(selectedValue)
     }
 
@@ -418,7 +420,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
         }),
     }
 
-    function handleCreatableBlur(event): void {
+    const handleCreatableBlur = (event): void => {
         if (event.target.value) {
             setSelectedTargetPlatforms([
                 ...selectedTargetPlatforms,
@@ -444,7 +446,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
     }
 
     const renderConfirmationModal = (): JSX.Element | null => {
-        if (!showCustmPlatformConfirmation) return null
+        if (!showCustomPlatformConfirmation) return null
         return (
             <ConfirmationDialog>
                 <ConfirmationDialog.Icon src={warningIconSrc} />
@@ -463,7 +465,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
                         type="button"
                         className="cta cancel"
                         onClick={(e) => {
-                            setShowCustmPlatformConfirmation(false)
+                            setShowCustomPlatformConfirmation(false)
                         }}
                     >
                         Go back
@@ -639,7 +641,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
                                     placeholder="Type to select or create"
                                     options={targetPlatformList}
                                     className="basic-multi-select mb-4"
-                                    classNamePrefix="select"
+                                    classNamePrefix="target-platform__select"
                                     onChange={handlePlatformChange}
                                     hideSelectedOptions={false}
                                     noOptionsMessage={noMatchingPlatformOptions}
@@ -650,7 +652,7 @@ function Form({ dockerRegistries, sourceConfig, ciConfig, reload, appId }) {
                                 />
                                 {showCustomPlatformWarning && (
                                     <span className="flexbox cy-7">
-                                        <WarningIcon className="icon-dim-16 mr-5 mt-2" />
+                                        <WarningIcon className="warning-icon-y7 icon-dim-16 mr-5 mt-2" />
                                         You have entered a custom target platform, please ensure it is valid.
                                     </span>
                                 )}
