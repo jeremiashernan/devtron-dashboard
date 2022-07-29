@@ -330,6 +330,7 @@ export interface MaterialType {
     isSelected: boolean
     gitHostId: number
     gitProviderId: number
+    regex?: string
 }
 
 export interface Githost {
@@ -401,7 +402,7 @@ export interface SourceMaterialsProps {
     showError: boolean
     validationRules?
     selectSourceType?: (event, gitMaterialId) => void
-    handleSourceChange?: (event, gitMaterialId) => void
+    handleSourceChange?: (event, gitMaterialId: number, type: string) => void
     includeWebhookEvents: boolean
     ciPipelineSourceTypeOptions: CiPipelineSourceTypeOption[]
     canEditPipeline: boolean
