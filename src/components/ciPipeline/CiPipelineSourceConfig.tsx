@@ -5,14 +5,14 @@ import Tippy from '@tippyjs/react'
 import { SourceTypeMap } from '../../config'
 import { getWebhookEventsForEventId } from '../../services/service'
 import { ReactComponent as Info } from '../../assets/icons/ic-info-outlined.svg'
-
+import regexIcon from '../../assets/icons/misc/regex.svg'
 export interface CIPipelineSourceConfigInterface {
     sourceType
     sourceValue
     showTooltip?: boolean
     showIcons?: boolean
     baseText?: string
-    regex?: string
+    regex?: any
 }
 
 export function CiPipelineSourceConfig({
@@ -77,7 +77,7 @@ export function CiPipelineSourceConfig({
         return (
             <>
                 <div className="fw-6">Regex</div>
-                <p>{sourceValueAdv}</p>
+                <p>{regex}</p>
                 {sourceValueAdv && (
                     <>
                         <div className="fw-6">Primary Branch</div>
@@ -94,19 +94,23 @@ export function CiPipelineSourceConfig({
             {!loading && (
                 <>
                     {showIcons && (
-                        <img src={_isWebhook ? webhookIcon : branchIcon} alt="branch" className="icon-dim-12 mr-5" />
+                        <img
+                            src={_isWebhook ? webhookIcon : _isRegex ? regexIcon : branchIcon}
+                            alt="branch"
+                            className="icon-dim-12 mr-5"
+                        />
                     )}
                     {showTooltip && (
                         <Tippy
                             className="default-tt"
                             arrow={false}
                             placement="bottom"
-                            content={_isRegex ? rendeRegexSourceVal() : sourceValueAdv}
+                            content={_isRegex ? rendeRegexSourceVal() : sourceValue}
                         >
                             <div>
                                 {!baseText && (
                                     <div className="flex left">
-                                        <div className="ellipsis-right">{sourceValueBase}</div>
+                                        <div className="ellipsis-right">{sourceValue}</div>
                                         <Info className="icon-dim-12 fcn-5 ml-4" />
                                     </div>
                                 )}
