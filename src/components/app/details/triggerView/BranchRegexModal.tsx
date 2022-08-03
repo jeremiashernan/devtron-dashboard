@@ -6,7 +6,6 @@ import { ReactComponent as BitBucket } from '../../../../assets/icons/git/bitbuc
 import { SourceTypeMap } from '../../../../config'
 import { ReactComponent as Close } from '../../../../assets/icons/ic-close.svg'
 import { ReactComponent as LeftIcon } from '../../../../assets/icons/ic-arrow-backward.svg'
-import RightArrow from '../../../../assets/icons/ic-arrow-forward.svg'
 import { ReactComponent as Error } from '../../../../assets/icons/ic-alert-triangle.svg'
 
 function BranchRegexModal({
@@ -15,13 +14,11 @@ function BranchRegexModal({
     showWebhookModal,
     title,
     isChangeBranchClicked,
-    isInvalidRegex,
     context,
     onClickNextButton,
     onShowCIModal,
     handleRegexInputValue,
     regexValue,
-    errorMessage,
 }) {
     const getBranchRegexName = (gitMaterialId: number) => {
         if (Array.isArray(selectedCIPipeline?.ciMaterial)) {
@@ -53,18 +50,17 @@ function BranchRegexModal({
         )
     }
 
-    const renderMaterialRegexFooterNextButton = (material, context) => {
+    const renderMaterialRegexFooterNextButton = (context) => {
         return (
             <div className="trigger-modal__trigger flex right">
                 <button
-                    className="cta"
+                    className="cta flex"
                     onClick={(e) => {
-                        // e.stopPropagation()
                         onClickNextButton(context)
                     }}
                 >
-                    Next
-                    <img className="icon-dim-16 ml-8 scn-0" src={RightArrow} />
+                    Save & Next
+                    <LeftIcon style={{ ['--rotateBy' as any]: '180deg' }} className="rotate icon-dim-16 ml-8 scn-0 " />
                 </button>
             </div>
         )
@@ -78,6 +74,7 @@ function BranchRegexModal({
             </div>
         )
     }
+
     return (
         <div>
             {' '}
@@ -103,6 +100,7 @@ function BranchRegexModal({
 
                     {material &&
                         material.map((mat, index) => {
+                            const _regexValue = regexValue[mat.gitMaterialId]
                             return (
                                 mat.regex && (
                                     <div className="border-bottom pb-20 pt-20" key={`regex_${index}`}>
@@ -132,18 +130,19 @@ function BranchRegexModal({
                                             placeholder="Enter branch name matching regex"
                                             className="form__input ml-36 w-95"
                                             name="name"
-                                            value={regexValue[mat.gitMaterialId]}
+                                            value={_regexValue?.value}
                                             onChange={(e) => handleRegexInputValue(mat.gitMaterialId, e.target.value)}
                                             autoFocus
                                             autoComplete="off"
                                         />
-                                        {isInvalidRegex && renderValidationErrorLabel(errorMessage)}
+                                        {_regexValue?.isInvalid &&
+                                            renderValidationErrorLabel('Branch name does not match the regex.')}
                                     </div>
                                 )
                             )
                         })}
                 </div>
-                {showWebhookModal ? null : renderMaterialRegexFooterNextButton(material, context)}
+                {showWebhookModal ? null : renderMaterialRegexFooterNextButton(context)}
             </>
         </div>
     )

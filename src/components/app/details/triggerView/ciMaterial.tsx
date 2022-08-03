@@ -23,9 +23,7 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
 
         this.state = {
             regexValue: {},
-            isInvalidRegex: false,
-            errorMessage: '',
-            selectedCIPipeline: props.filteredCIPipelines?.find((_ciPipeline) => _ciPipeline?.id == props.workflowId),
+            selectedCIPipeline: props.filteredCIPipelines?.find((_ciPipeline) => _ciPipeline?.id == props.pipelineId),
             isChangeBranchClicked: 0,
             loader: false,
         }
@@ -44,7 +42,6 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
                     material={this.props.material}
                     selectMaterial={context.selectMaterial}
                     refreshMaterial={refreshMaterial}
-                    regex={this.state.regexValue}
                 />
             </div>
         )
@@ -141,25 +138,47 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
             loader: true,
         })
         const payload: any = {
-            ciPipelineMaterial: this.state.selectedCIPipeline?.ciMaterial,
+            appId: +this.props.match.params.appId,
+            id: +this.props.workflowId,
+            ciPipelineMaterial: [],
         }
-        payload.appId = +this.props.match.params.appId
-        payload.id = +this.props.workflowId
 
-        if (payload.ciPipelineMaterial?.length) {
-            for (let _cm of payload.ciPipelineMaterial) {
+        // Populate the ciPipelineMaterial with flatten object
+        if (this.state.selectedCIPipeline?.ciMaterial?.length) {
+            for (let _cm of this.state.selectedCIPipeline.ciMaterial) {
                 const regVal = this.state.regexValue[_cm.gitMaterialId]
-                if ((regVal && _cm.regex) || _cm.source.regex) {
-                    const regExp = new RegExp(_cm.regex || _cm.source.regex)
-                    if (!regExp.test(regVal)) {
-                        this.setState({ isInvalidRegex: true, errorMessage: 'No matching value' })
+                let _updatedCM
+                if (regVal?.value && _cm.source.regex) {
+                    const regExp = new RegExp(_cm.source.regex)
+                    if (!regExp.test(regVal.value)) {
+                        const _regexVal = {
+                            ...this.state.regexValue,
+                            [_cm.gitMaterialId]: { value: regVal.value, isInvalid: true },
+                        }
+                        this.setState({
+                            regexValue: _regexVal,
+                        })
                         return
                     }
-                    _cm.type = SourceTypeMap.BranchFixed
-                    _cm.value = regVal
-                    _cm.regex = _cm.regex || _cm.source.regex
-                    delete _cm['source']
+
+                    _updatedCM = {
+                        ..._cm,
+                        type: SourceTypeMap.BranchFixed,
+                        value: regVal.value,
+                        regex: _cm.source.regex,
+                    }
+                } else {
+                    // To maintain the flatten object structure supported by API for unchanged values
+                    // as during update/next click it uses the fetched ciMaterial structure i.e. containing source
+                    _updatedCM = {
+                        ..._cm,
+                        ..._cm.source,
+                    }
                 }
+
+                // Deleting as it's not required in the request payload
+                delete _updatedCM['source']
+                payload.ciPipelineMaterial.push(_updatedCM)
             }
         }
 
@@ -167,7 +186,6 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
             .then((response) => {
                 if (response) {
                     toast.success('Updated Pipeline')
-                    this.setState({ isInvalidRegex: false })
                     this.props.onCloseBranchRegexModal()
                     context.onClickCIMaterial(this.props.pipelineId, this.props.pipelineName)
                     this.props.onShowCIModal()
@@ -175,7 +193,6 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
             })
             .catch((error: ServerErrors) => {
                 showError(error)
-                this.setState({ isInvalidRegex: true })
             })
             .finally(() => {
                 this.setState({ loader: false })
@@ -187,7 +204,7 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
             return {
                 regexValue: {
                     ...prevState.regexValue,
-                    [id]: value,
+                    [id]: { value, isInvalid: false },
                 },
             }
         })
@@ -197,13 +214,25 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
         return (
             <TriggerViewContext.Consumer>
                 {(context) => {
-                    let regexValue: Record<number, string> = undefined
+                    let regexValue: Record<
+                        number,
+                        {
+                            value: string
+                            isInvalid: boolean
+                        }
+                    > = undefined
                     if (
                         Object.entries(this.state.regexValue).length === 0 &&
                         this.state.regexValue.constructor === Object
                     ) {
                         regexValue = {}
-                        this.props.material.forEach((mat, index) => (regexValue[mat.gitMaterialId] = mat.value))
+                        this.props.material.forEach(
+                            (mat, index) =>
+                                (regexValue[mat.gitMaterialId] = {
+                                    value: mat.value,
+                                    isInvalid: mat.regex && !new RegExp(mat.regex).test(mat.value),
+                                }),
+                        )
                     }
                     return (
                         <VisibleModal className="" close={context.closeCIModal}>
@@ -220,13 +249,11 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
                                         showWebhookModal={this.props.showWebhookModal}
                                         title={this.props.title}
                                         isChangeBranchClicked={this.state.isChangeBranchClicked}
-                                        isInvalidRegex={this.state.isInvalidRegex}
                                         context={context}
                                         onClickNextButton={this.onClickNextButton}
                                         onShowCIModal={this.props.onShowCIModal}
                                         handleRegexInputValue={this.handleRegexInputValue}
                                         regexValue={regexValue || this.state.regexValue}
-                                        errorMessage={this.state.errorMessage}
                                     />
                                 )}
                                 {this.props.showCIModal && this.renderCIModal(context)}

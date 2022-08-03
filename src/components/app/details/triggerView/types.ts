@@ -74,13 +74,10 @@ export interface CIMaterialProps extends RouteComponentProps<CIMaterialRouterPro
     onClickShowBranchRegexModal: () => void
     showCIModal: boolean
     onShowCIModal: () => void
-    regex: string
 }
 
 export interface CIMaterialState {
-    regexValue: Record<number, string>
-    isInvalidRegex: boolean
-    errorMessage: string
+    regexValue: Record<number, { value: string; isInvalid: boolean }>
     selectedCIPipeline?: any
     isChangeBranchClicked: number
     loader: boolean
@@ -128,6 +125,7 @@ export interface NodeAttr {
     parentEnvironmentName?: string
     isRegex?: boolean
     regex?: string
+    primaryBranchAfterRegex?: string
 }
 
 export interface DownStreams {
@@ -251,7 +249,6 @@ export interface TriggerViewState {
     webhhookTimeStampOrder: string
     showMaterialRegexModal: boolean
     filteredCIPipelines: any[]
-    regex: string
 }
 
 //-- begining of response type objects for trigger view
