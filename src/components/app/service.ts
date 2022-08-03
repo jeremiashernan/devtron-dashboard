@@ -304,9 +304,8 @@ export function refreshGitMaterial(gitMaterialId: string) {
     })
 }
 
-export function fetchGitMaterialByCommitHash(gitMaterialId: string, commitHash: string) {
-    const URL = `${Routes.MATERIAL_BY_COMMIT_HASH}/${gitMaterialId}/${commitHash}`
-    return get(URL)
+export function getGitMaterialByCommitHash(gitMaterialId: string, commitHash: string) {
+    return get(`${Routes.COMMIT_INFO}/${gitMaterialId}/${commitHash}`)
 }
 
 export const getCDTriggerStatus = (appId) => {

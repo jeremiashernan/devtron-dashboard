@@ -1,5 +1,5 @@
 import React, { Component, createContext } from 'react';
-import { getCDMaterialList, getRollbackMaterialList, triggerCDNode, getCIMaterialList, triggerCINode, getWorkflowStatus, refreshGitMaterial, CDModalTab, fetchGitMaterialByCommitHash } from '../../service';
+import { getCDMaterialList, getRollbackMaterialList, triggerCDNode, getCIMaterialList, triggerCINode, getWorkflowStatus, refreshGitMaterial, CDModalTab, getGitMaterialByCommitHash } from '../../service';
 import { ServerErrors } from '../../../../modals/commonTypes';
 import { createGitCommitUrl, ErrorScreenManager, ISTTimeModal, Progressing, showError } from '../../../common';
 import { getTriggerWorkflows } from './workflow.service';
@@ -31,7 +31,7 @@ export const TriggerViewContext = createContext({
     selectMaterial: (materialId) => { },
     toggleChanges: (materialId: string, hash: string) => { },
     toggleInvalidateCache: () => { },
-    fetchMaterialByCommit: (ciNodeId: number, pipelineName: string, materialId: number, commitHash: string) => { },
+    getMaterialByCommit: (ciNodeId: number, pipelineName: string, materialId: number, commitHash: string) => { },
 });
 
 const TIME_STAMP_ORDER = {
@@ -69,7 +69,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
         this.onClickCDMaterial = this.onClickCDMaterial.bind(this);
         this.changeTab = this.changeTab.bind(this);
         this.toggleInvalidateCache = this.toggleInvalidateCache.bind(this);
-        this.fetchMaterialByCommit = this.fetchMaterialByCommit.bind(this)
+        this.getMaterialByCommit = this.getMaterialByCommit.bind(this)
     }
 
     componentWillUnmount() {
@@ -117,8 +117,8 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
         }
     }
 
-    fetchCommitHistoryFromDB(ciPipelineMaterialId: number, commitHash: string,workflows: WorkflowType[], _selectedMaterial: CIMaterialType){
-      fetchGitMaterialByCommitHash(ciPipelineMaterialId.toString(), commitHash)
+    getCommitHistory(ciPipelineMaterialId: number, commitHash: string,workflows: WorkflowType[], _selectedMaterial: CIMaterialType){
+      getGitMaterialByCommitHash(ciPipelineMaterialId.toString(), commitHash)
           .then((response) => {
               const _result = response.result
               if (_result) {
@@ -157,16 +157,12 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
           })
     }
 
-    fetchMaterialByCommit(ciNodeId: number, pipelineName: string, ciPipelineMaterialId: number, commitHash = null) {
+    getMaterialByCommit(ciNodeId: number, pipelineName: string, ciPipelineMaterialId: number, commitHash = null) {
       if (commitHash) {
-          let state = { ...this.state }
-          state.ciNodeId = +ciNodeId
-          let workflowId
           let _selectedMaterial
           let workflows = this.state.workflows.map((workflow) => {
               workflow.nodes.map((node) => {
-                  if (node.type === 'CI' && +node.id == state.ciNodeId) {
-                      workflowId = workflow.id
+                  if (node.type === 'CI' && +node.id == this.state.ciNodeId) {
                       node.inputMaterialList = node.inputMaterialList.map((material) => {
                           if (material.isSelected) {
                               material.isMaterialLoading = true
@@ -185,7 +181,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
               _selectedMaterial.history = [{ ...commitInLocalHistory, isSelected: true }]
               _selectedMaterial.isMaterialLoading = false
           } else {
-              this.fetchCommitHistoryFromDB(ciPipelineMaterialId, commitHash, workflows, _selectedMaterial)
+              this.getCommitHistory(ciPipelineMaterialId, commitHash, workflows, _selectedMaterial)
           }
       } else {
           this.onClickCIMaterial(ciNodeId.toString(), pipelineName, true)
@@ -806,7 +802,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
                 selectMaterial: this.selectMaterial,
                 toggleChanges: this.toggleChanges,
                 toggleInvalidateCache: this.toggleInvalidateCache,
-                fetchMaterialByCommit: this.fetchMaterialByCommit,
+                getMaterialByCommit: this.getMaterialByCommit,
             }} >
                 {this.renderHostErrorMessage()}
                 {this.renderWorkflow()}

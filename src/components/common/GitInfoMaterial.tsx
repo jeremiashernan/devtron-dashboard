@@ -29,9 +29,12 @@ export default function GitInfoMaterial({
   const [searchText, setSearchText] = useState('')
   const [searchApplied, setSearchApplied] = useState(false)
   useEffect(() => {
-    if (selectedMaterial.searchText !== searchText) {
-        setSearchText(selectedMaterial.searchText)
+    if(!selectedMaterial || !selectedMaterial.searchText){
+      setSearchText('')
+    } else if(selectedMaterial.searchText !== searchText){
+      setSearchText(selectedMaterial.searchText)
     }
+
   }, [selectedMaterial])
 
     function renderMaterialHeader(material: CIMaterialType) {
@@ -86,7 +89,7 @@ export default function GitInfoMaterial({
         );
     }
     const handleFilterChanges = (_searchText: string): void => {
-      context.fetchMaterialByCommit(pipelineId, title, selectedMaterial.id, _searchText)
+      context.getMaterialByCommit(pipelineId, title, selectedMaterial.id, _searchText)
   }
 
   const clearSearch = (): void => {
