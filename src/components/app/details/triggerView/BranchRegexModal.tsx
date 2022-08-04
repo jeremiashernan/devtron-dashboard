@@ -34,7 +34,7 @@ function BranchRegexModal({
         return ''
     }
 
-    const renderBranchRegexMaterialHeader = (close) => {
+    const renderBranchRegexMaterialHeader = (close: () => void) => {
         return (
             <div className="trigger-modal__header">
                 <h1 className="modal__title flex left fs-16">{title}</h1>
@@ -45,7 +45,7 @@ function BranchRegexModal({
                         close()
                     }}
                 >
-                    <Close className="" />
+                    <Close />
                 </button>
             </div>
         )
@@ -73,7 +73,7 @@ function BranchRegexModal({
         )
     }
 
-    const renderValidationErrorLabel = (message?: string): JSX.Element => {
+    const renderValidationErrorLabel = (message: string): JSX.Element => {
         return (
             <div className="error-label flex left align-start fs-11 fw-4 mt-6 ml-36">
                 <Error className="icon-dim-16" />
@@ -89,8 +89,7 @@ function BranchRegexModal({
 
     return (
         <>
-            <div>{renderBranchRegexMaterialHeader(context.closeCIModal)}</div>
-
+            {renderBranchRegexMaterialHeader(context.closeCIModal)}
             <div className="select-material--regex-body p-20 fs-13">
                 <div className="flex left">
                     {isChangeBranchClicked && (
@@ -109,7 +108,7 @@ function BranchRegexModal({
                 </div>
                 {material &&
                     material.map((mat, index) => {
-                        const _regexValue = regexValue[mat.gitMaterialId]
+                        const _regexValue = regexValue[mat.gitMaterialId] || {}
                         return (
                             mat.regex && (
                                 <div className="border-bottom pb-20 pt-20" key={`regex_${index}`}>
@@ -135,22 +134,21 @@ function BranchRegexModal({
                                         </span>
                                     </div>
                                     <input
-                                        tabIndex={1}
+                                        tabIndex={index}
                                         placeholder="Enter branch name matching regex"
                                         className="form__input ml-36 w-95"
                                         name="name"
-                                        value={_regexValue?.value}
+                                        value={_regexValue.value}
                                         onChange={(e) => handleRegexInputValue(mat.gitMaterialId, e.target.value, mat)}
                                         autoFocus
                                         autoComplete="off"
                                     />
-                                    {_regexValue?.value &&
+                                    {_regexValue.value &&
                                         _regexValue.isInvalid &&
                                         renderValidationErrorLabel('Branch name does not match the regex.')}
-                                    {!_regexValue?.value && renderValidationErrorLabel('This is a required field')}
-                                    {showWebhookModal
-                                        ? null
-                                        : renderMaterialRegexFooterNextButton(context, mat.gitMaterialId)}
+                                    {!_regexValue.value && renderValidationErrorLabel('This is a required field')}
+                                    {!showWebhookModal &&
+                                        renderMaterialRegexFooterNextButton(context, mat.gitMaterialId)}
                                 </div>
                             )
                         )
