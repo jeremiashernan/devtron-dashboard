@@ -40,7 +40,7 @@ import PageHeader from '../../common/header/PageHeader'
 import emptyImage from '../../../assets/img/empty-noresult@2x.png'
 import SavedValuesList from '../SavedValues/SavedValuesList'
 import ChartValues from '../chartValues/ChartValues'
-import { ReactComponent as Next } from '../../../assets/icons/ic-arrow-forward.svg';
+import { ReactComponent as Next } from '../../../assets/icons/ic-arrow-forward.svg'
 
 interface EmptyCharts {
     title?: string
@@ -110,12 +110,12 @@ function DiscoverChartList() {
     const chartList: Chart[] = Array.from(state.availableCharts.values())
     const isLeavingPageNotAllowed = useRef(false)
     const [showChartGroupModal, toggleChartGroupModal] = useState(false)
-    const [isGrid, setGrid] = useState<boolean>(true)
-    const noChartAvailable : boolean   = chartList.length > 0 || searchApplied || selectedChartRepo.length > 0
+    const [isGrid, setIsGrid] = useState<boolean>(true)
+    const noChartAvailable: boolean = chartList.length > 0 || searchApplied || selectedChartRepo.length > 0
     isLeavingPageNotAllowed.current = !state.charts.reduce((acc: boolean, chart: ChartGroupEntry) => {
         return (acc = acc && chart.originalValuesYaml === chart.valuesYaml)
     }, true)
-    
+
     useEffect(() => {
         if (!state.loading) {
             initialiseFromQueryParams(state.chartRepos)
@@ -123,7 +123,7 @@ function DiscoverChartList() {
         }
     }, [location.search, state.loading])
 
-    function reloadCallback(event) {
+    function reloadCallback(event): void {
         event.preventDefault()
         if (isLeavingPageNotAllowed.current) {
             event.returnValue = 'Your changes will be lost. Do you want to reload without deploying?'
@@ -154,12 +154,12 @@ function DiscoverChartList() {
         }
     }
 
-    function redirectToConfigure() {
+    function redirectToConfigure(): void {
         configureChart(0)
         toggleDeployModal(false)
     }
 
-    function initialiseFromQueryParams(chartRepoList) {
+    function initialiseFromQueryParams(chartRepoList): void {
         let searchParams = new URLSearchParams(location.search)
         let allChartRepoIds: string = searchParams.get(QueryParams.ChartRepoId)
         let deprecated: string = searchParams.get(QueryParams.IncludeDeprecated)
@@ -190,11 +190,11 @@ function DiscoverChartList() {
         setChartListloading(false)
     }
 
-    function handleViewAllCharts() {
+    function handleViewAllCharts(): void {
         history.push(`${match.url.split('/chart-store')[0]}${URLS.GLOBAL_CONFIG_CHART}`)
     }
 
-    function handleCloseFilter() {
+    function handleCloseFilter(): void {
         setSelectedChartRepo(appliedChartRepoFilter)
     }
 
@@ -204,7 +204,7 @@ function DiscoverChartList() {
                 {chartList.length > 0 && serverMode == SERVER_MODE.FULL && state.charts.length === 0 && (
                     <button
                         type="button"
-                        className="create-button cursor cb-5 fw-6 fs-13 br-4 pr-12 pl-12 fcb-5 flex h-32 lh-n"
+                        className="bcn-0 en-2 bw-1 cursor cb-5 fw-6 fs-13 br-4 pr-12 pl-12 fcb-5 flex h-32 lh-n"
                         onClick={(e) => toggleChartGroupModal(!showChartGroupModal)}
                     >
                         <Add className="icon-dim-18 mr-5" />
@@ -233,13 +233,8 @@ function DiscoverChartList() {
         )
     }
 
-    const clearSearch = (viewAllCharts: boolean = false) => {
-        const searchParams = new URLSearchParams(location.search)
-        const includeDeprecate = searchParams.get(QueryParams.IncludeDeprecated)
-        const chartRepoId = searchParams.get(QueryParams.ChartRepoId)
-        let qs = includeDeprecate ? `&${QueryParams.IncludeDeprecated}=${includeDeprecate}` : ''
-        qs += chartRepoId ? `&${QueryParams.ChartRepoId}=${chartRepoId}` : ''
-        viewAllCharts ? history.push(url) : history.push(`${url}?${qs}`)
+    const clearSearch = (): void => {
+        history.push(url)
     }
 
     return (
@@ -266,7 +261,7 @@ function DiscoverChartList() {
                                 setAppStoreName={setAppStoreName}
                                 handleCloseFilter={handleCloseFilter}
                                 isGrid={isGrid}
-                                setGrid={setGrid}
+                                setIsGrid={setIsGrid}
                             />
                         )}
                         {state.loading || chartListLoading ? (
@@ -363,7 +358,7 @@ function DiscoverChartList() {
                                                             title={'No matching charts'}
                                                             removeLearnMore={true}
                                                             image={emptyImage}
-                                                            onClickViewChartButton={() => clearSearch(true)}
+                                                            onClickViewChartButton={clearSearch}
                                                             subTitle={`We couldn't find any matching results`}
                                                             styles={{ height: '300px', justifyContent: 'center' }}
                                                         />
@@ -533,9 +528,7 @@ export default function DiscoverCharts() {
     )
 }
 
-function ChartListHeader({
-    charts
-}) {
+function ChartListHeader({ charts }) {
     return (
         <div>
             <h3 className="chart-grid__title pl-20 pr-20 pt-16">
@@ -624,6 +617,11 @@ export function ChartGroupListMin({
             <EmptyChartGroup showChartGroupModal={showChartGroupModal} toggleChartGroupModal={toggleChartGroupModal} />
         )
     }
+
+    const redirectToGroup = () => {
+        history.push(match.url + '/group')
+    }
+
     return (
         <div className="chart-group">
             <div className="chart-group__header">
@@ -635,10 +633,7 @@ export function ChartGroupListMin({
                     </p>
                     <div className="flex content-space">
                         {renderCreateGroupButton()}
-                        <div
-                            className="cb-5 fw-6 fs-13 flex fcb-5 cursor"
-                            onClick={(e) => history.push(match.url + '/group')}
-                        >
+                        <div className="cb-5 fw-6 fs-13 flex fcb-5 cursor" onClick={redirectToGroup}>
                             View all chart groups
                             <Next className="ml-8 sicon-dim-16" />
                         </div>
