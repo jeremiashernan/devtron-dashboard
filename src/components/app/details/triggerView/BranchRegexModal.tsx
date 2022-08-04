@@ -51,7 +51,7 @@ function BranchRegexModal({
         )
     }
 
-    const renderMaterialRegexFooterNextButton = (context) => {
+    const renderMaterialRegexFooterNextButton = (context, materialId) => {
         return (
             <div className="trigger-modal__trigger flex right">
                 <button
@@ -59,9 +59,15 @@ function BranchRegexModal({
                     onClick={(e) => {
                         onClickNextButton(context)
                     }}
+                    disabled={!regexValue[materialId]?.value}
                 >
                     Save {!isChangeBranchClicked && '& Next'}
-                    <LeftIcon style={{ ['--rotateBy' as any]: '180deg' }} className="rotate icon-dim-16 ml-8 scn-0 " />
+                    {!isChangeBranchClicked && (
+                        <LeftIcon
+                            style={{ ['--rotateBy' as any]: '180deg' }}
+                            className="rotate icon-dim-16 ml-8 scn-0 "
+                        />
+                    )}
                 </button>
             </div>
         )
@@ -85,7 +91,7 @@ function BranchRegexModal({
         <>
             <div>{renderBranchRegexMaterialHeader(context.closeCIModal)}</div>
 
-            <div className="select-material--regex-body m-20 fs-13">
+            <div className="select-material--regex-body p-20 fs-13">
                 <div className="flex left">
                     {isChangeBranchClicked && (
                         <div onClick={onClickBackArrow}>
@@ -101,56 +107,54 @@ function BranchRegexModal({
                         </p>
                     </div>
                 </div>
-                <div className="mb-32">
-                    {material &&
-                        material.map((mat, index) => {
-                            const _regexValue = regexValue[mat.gitMaterialId]
-                            return (
-                                mat.regex && (
-                                    <div className="border-bottom pb-20 pt-20" key={`regex_${index}`}>
-                                        <div className="flex left">
-                                            <span className="mr-14">
-                                                {mat.gitMaterialUrl.includes('gitlab') ? <GitLab /> : null}
-                                                {mat.gitMaterialUrl.includes('github') ? <GitHub /> : null}
-                                                {mat.gitMaterialUrl.includes('bitbucket') ? <BitBucket /> : null}
-                                                {mat.gitMaterialUrl.includes('gitlab') ||
-                                                mat.gitMaterialUrl.includes('github') ||
-                                                mat.gitMaterialUrl.includes('bitbucket') ? null : (
-                                                    <Git />
-                                                )}
-                                            </span>
-                                            <span>
-                                                <div className="fw-6 fs-14">{mat.gitMaterialName}</div>
-                                                <div className="pb-12">
-                                                    Use branch name matching&nbsp;
-                                                    <span className="fw-6">
-                                                        {getBranchRegexName(mat.gitMaterialId) || mat.regex}
-                                                    </span>
-                                                </div>
-                                            </span>
-                                        </div>
-                                        <input
-                                            tabIndex={1}
-                                            placeholder="Enter branch name matching regex"
-                                            className="form__input ml-36 w-95"
-                                            name="name"
-                                            value={_regexValue?.value}
-                                            onChange={(e) =>
-                                                handleRegexInputValue(mat.gitMaterialId, e.target.value, mat)
-                                            }
-                                            autoFocus
-                                            autoComplete="off"
-                                        />
-                                        {_regexValue?.value &&
-                                            _regexValue.isInvalid &&
-                                            renderValidationErrorLabel('Branch name does not match the regex.')}
-                                        {!_regexValue?.value && renderValidationErrorLabel('This is a required field')}
+                {material &&
+                    material.map((mat, index) => {
+                        const _regexValue = regexValue[mat.gitMaterialId]
+                        return (
+                            mat.regex && (
+                                <div className="border-bottom pb-20 pt-20" key={`regex_${index}`}>
+                                    <div className="flex left">
+                                        <span className="mr-14">
+                                            {mat.gitMaterialUrl.includes('gitlab') ? <GitLab /> : null}
+                                            {mat.gitMaterialUrl.includes('github') ? <GitHub /> : null}
+                                            {mat.gitMaterialUrl.includes('bitbucket') ? <BitBucket /> : null}
+                                            {mat.gitMaterialUrl.includes('gitlab') ||
+                                            mat.gitMaterialUrl.includes('github') ||
+                                            mat.gitMaterialUrl.includes('bitbucket') ? null : (
+                                                <Git />
+                                            )}
+                                        </span>
+                                        <span>
+                                            <div className="fw-6 fs-14">{mat.gitMaterialName}</div>
+                                            <div className="pb-12">
+                                                Use branch name matching&nbsp;
+                                                <span className="fw-6">
+                                                    {getBranchRegexName(mat.gitMaterialId) || mat.regex}
+                                                </span>
+                                            </div>
+                                        </span>
                                     </div>
-                                )
+                                    <input
+                                        tabIndex={1}
+                                        placeholder="Enter branch name matching regex"
+                                        className="form__input ml-36 w-95"
+                                        name="name"
+                                        value={_regexValue?.value}
+                                        onChange={(e) => handleRegexInputValue(mat.gitMaterialId, e.target.value, mat)}
+                                        autoFocus
+                                        autoComplete="off"
+                                    />
+                                    {_regexValue?.value &&
+                                        _regexValue.isInvalid &&
+                                        renderValidationErrorLabel('Branch name does not match the regex.')}
+                                    {!_regexValue?.value && renderValidationErrorLabel('This is a required field')}
+                                    {showWebhookModal
+                                        ? null
+                                        : renderMaterialRegexFooterNextButton(context, mat.gitMaterialId)}
+                                </div>
                             )
-                        })}
-                </div>
-                {showWebhookModal ? null : renderMaterialRegexFooterNextButton(context)}
+                        )
+                    })}
             </div>
         </>
     )
