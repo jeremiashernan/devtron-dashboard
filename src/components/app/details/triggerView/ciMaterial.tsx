@@ -1,40 +1,35 @@
 import React, { Component } from 'react'
-import { CIMaterialProps, CIMaterialState } from './types'
+import { CIMaterialProps, CIMaterialState, CIMaterialType, RegexValueType, SelectedCIMaterial } from './types'
 import { ReactComponent as Play } from '../../../../assets/icons/misc/arrow-solid-right.svg'
 import { ReactComponent as Question } from '../../../../assets/icons/appstatus/unknown.svg'
 import { VisibleModal, ButtonWithLoader, Checkbox, showError, Progressing } from '../../../common'
 import { TriggerViewContext } from './TriggerView'
 import Tippy from '@tippyjs/react'
-import { MaterialSource } from '../../details/triggerView/MaterialSource'
 import GitInfoMaterial from '../../../common/GitInfoMaterial'
 import { savePipeline } from '../../../ciPipeline/ciPipeline.service'
 import { SourceTypeMap } from '../../../../config'
-import { toast } from 'react-toastify'
 import { ServerErrors } from '../../../../modals/commonTypes'
 import BranchRegexModal from './BranchRegexModal'
-
 export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
     constructor(props) {
         super(props)
-        let regexValue: Record<
-            number,
-            {
-                value: string
-                isInvalid: boolean
-            }
-        > = {}
-        this.props.material.forEach(
-            (mat, index) =>
-                (regexValue[mat.gitMaterialId] = {
-                    value: mat.value,
-                    isInvalid: mat.regex && !new RegExp(mat.regex).test(mat.value),
-                }),
-        )
+
         this.state = {
-            regexValue: regexValue,
+            regexValue: this.getRegexValue(props.material),
             selectedCIPipeline: props.filteredCIPipelines?.find((_ciPipeline) => _ciPipeline?.id == props.pipelineId),
             loader: false,
         }
+    }
+
+    getRegexValue = (material: CIMaterialType[]): RegexValueType => {
+        let regexValue: Record<number, { value: string; isInvalid: boolean }> = {}
+        material.forEach((mat) => {
+            regexValue[mat.gitMaterialId] = {
+                value: mat.value,
+                isInvalid: mat.regex && !new RegExp(mat.regex).test(mat.value),
+            }
+        })
+        return regexValue
     }
 
     onClickStopPropagation = (e): void => {
@@ -86,7 +81,6 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
 
     renderCIModal(context) {
         let selectedMaterial = this.props.material.find((mat) => mat.isSelected)
-        let commitInfo = this.props.material.find((mat) => mat.history)
         let canTrigger = this.props.material.reduce((isValid, mat) => {
             isValid = isValid && !mat.isMaterialLoading && !!mat.history.find((history) => history.isSelected)
             return isValid
@@ -94,30 +88,28 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
         if (this.props.material.length > 0) {
             return (
                 <>
-                    <div>
-                        <GitInfoMaterial
-                            context={context}
-                            material={this.props.material}
-                            title={this.props.title}
-                            pipelineId={this.props.pipelineId}
-                            pipelineName={this.props.pipelineName}
-                            selectedMaterial={selectedMaterial}
-                            showWebhookModal={this.props.showWebhookModal}
-                            hideWebhookModal={this.props.hideWebhookModal}
-                            toggleWebhookModal={this.props.toggleWebhookModal}
-                            webhookPayloads={this.props.webhookPayloads}
-                            isWebhookPayloadLoading={this.props.isWebhookPayloadLoading}
-                            workflowId={this.props.workflowId}
-                            onClickShowBranchRegexModal={this.props.onClickShowBranchRegexModal}
-                        />
-                    </div>
+                    <GitInfoMaterial
+                        context={context}
+                        material={this.props.material}
+                        title={this.props.title}
+                        pipelineId={this.props.pipelineId}
+                        pipelineName={this.props.pipelineName}
+                        selectedMaterial={selectedMaterial}
+                        showWebhookModal={this.props.showWebhookModal}
+                        hideWebhookModal={this.props.hideWebhookModal}
+                        toggleWebhookModal={this.props.toggleWebhookModal}
+                        webhookPayloads={this.props.webhookPayloads}
+                        isWebhookPayloadLoading={this.props.isWebhookPayloadLoading}
+                        workflowId={this.props.workflowId}
+                        onClickShowBranchRegexModal={this.props.onClickShowBranchRegexModal}
+                    />
                     {this.props.showWebhookModal ? null : this.renderMaterialStartBuild(context, canTrigger)}
                 </>
             )
         }
     }
 
-    isRegexValueInvalid = (_cm): boolean => {
+    isRegexValueInvalid = (_cm: SelectedCIMaterial): boolean => {
         const regExp = new RegExp(_cm.source.regex)
         const regVal = this.state.regexValue[_cm.gitMaterialId]
         if (!regExp.test(regVal.value)) {
@@ -174,7 +166,6 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
         savePipeline(payload, true)
             .then((response) => {
                 if (response) {
-                    toast.success('Updated Pipeline')
                     this.props.getWorkflows()
                     this.props.onCloseBranchRegexModal()
                     context.onClickCIMaterial(this.props.pipelineId, this.props.pipelineName)
@@ -189,7 +180,7 @@ export class CIMaterial extends Component<CIMaterialProps, CIMaterialState> {
             })
     }
 
-    handleRegexInputValue = (id, value, mat) => {
+    handleRegexInputValue = (id: number, value: string, mat: CIMaterialType): void => {
         const isValid = new RegExp(mat.regex).test(value)
         this.setState((prevState) => {
             let rt = {
