@@ -14,7 +14,7 @@ import { ServerErrors } from '../../../../modals/commonTypes'
 import { createGitCommitUrl, ErrorScreenManager, ISTTimeModal, Progressing, showError } from '../../../common'
 import { getTriggerWorkflows } from './workflow.service'
 import { Workflow } from './workflow/Workflow'
-import { NodeAttr, TriggerViewProps, TriggerViewState, CDMdalTabType, WorkflowType } from './types'
+import { NodeAttr, TriggerViewProps, TriggerViewState, WorkflowType } from './types'
 import { CIMaterial } from './ciMaterial'
 import { CDMaterial } from './cdMaterial'
 import { URLS, ViewType, SourceTypeMap } from '../../../../config'
@@ -26,9 +26,9 @@ import { getLastExecutionByArtifactAppEnv } from '../../../../services/service'
 import { ReactComponent as Error } from '../../../../assets/icons/ic-error-exclamation.svg'
 import { getHostURLConfiguration } from '../../../../services/service'
 import { getCIWebhookRes } from './ciWebhook.service'
-import { CIMaterialType } from './MaterialHistory'
 
 import { workflow } from './workflow.data'
+import { CIMaterialType } from './MaterialHistory'
 
 export const TriggerViewContext = createContext({
     invalidateCache: false,
@@ -124,20 +124,22 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.match.params.appId !== prevProps.match.params.appId) {
-            getTriggerWorkflows(this.props.match.params.appId)
-                .then((result) => {
-                    let wf = result.workflows || []
-                    this.setState({ workflows: wf }, () => {
-                        this.getWorkflowStatus()
-                        this.timerRef = setInterval(() => {
-                            this.getWorkflowStatus()
-                        }, 30000)
-                    })
-                })
-                .catch((errors: ServerErrors) => {
-                    showError(errors)
-                    this.setState({ code: errors.code })
-                })
+            this.getWorkflows()
+            //     getTriggerWorkflows(this.props.match.params.appId)
+            //         .then((result) => {
+            //             let wf = result.workflows || []
+            //             this.setState({ workflows: wf }, () => {
+            //                 this.getWorkflowStatus()
+            //                 this.timerRef = setInterval(() => {
+            //                     this.getWorkflowStatus()
+            //                 }, 30000)
+            //             })
+            //         })
+            //         .catch((errors: ServerErrors) => {
+            //             showError(errors)
+            //             this.setState({ code: errors.code })
+            //         })
+            // }
         }
     }
 
@@ -679,7 +681,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
     }
 
     //TODO: refactor
-    changeTab(materialIndex, artifactId: number, tab: CDMdalTabType): void {
+    changeTab(materialIndex, artifactId: number, tab): void {
         if (tab === CDModalTab.Changes) {
             let workflows = this.state.workflows.map((workflow) => {
                 let nodes = workflow.nodes.map((node) => {

@@ -1,6 +1,6 @@
 import { RouteComponentProps } from 'react-router'
-import { CIMaterialType } from './MaterialHistory'
 import { HostURLConfig } from '../../../../services/service.types'
+import { CIMaterialType } from './MaterialHistory'
 export type CDMdalTabType = 'SECURITY' | 'CHANGES'
 
 export interface CDMaterialProps {
