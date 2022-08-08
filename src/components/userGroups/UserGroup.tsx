@@ -647,7 +647,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
     const { environmentsList, projectsList, appsList, envClustersList, appsListHelmApps } = useUserGroupContext()
     const projectId =
         permission.team && serverMode !== SERVER_MODE.EA_ONLY && permission.team.value !== HELM_APP_UNASSIGNED_PROJECT
-            ? projectsList.find((project) => project.name === permission.team.value).id
+            ? projectsList.find((project) => project.name === permission.team.value)?.id
             : null
     const possibleRoles = [ActionTypes.VIEW, ActionTypes.TRIGGER, ActionTypes.ADMIN, ActionTypes.MANAGER]
     const possibleRolesHelmApps = [ActionTypes.VIEW, ActionTypes.EDIT, ActionTypes.ADMIN]
@@ -885,7 +885,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
                 options={(serverMode === SERVER_MODE.EA_ONLY
                     ? [{ name: HELM_APP_UNASSIGNED_PROJECT }]
                     : permission.accessType === ACCESS_TYPE_MAP.HELM_APPS
-                    ? [{ name: HELM_APP_UNASSIGNED_PROJECT }, ...projectsList]
+                    ? [{ name: HELM_APP_UNASSIGNED_PROJECT }, ...(projectsList || [])]
                     : projectsList
                 )?.map((project) => ({ label: project.name, value: project.name }))}
                 className="basic-multi-select"
@@ -897,7 +897,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
                     Option: singleOption,
                     ValueContainer: projectValueContainer,
                 }}
-                menuPlacement='auto'
+                menuPlacement="auto"
                 styles={{
                     ...tempMultiSelectStyles,
                     control: (base, state) => ({
@@ -936,7 +936,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
                         className="basic-multi-select cluster-select"
                         classNamePrefix="select"
                         hideSelectedOptions={false}
-                        menuPlacement='auto'
+                        menuPlacement="auto"
                         styles={{
                             ...tempMultiSelectStyles,
                             option: (base, state) => ({
@@ -977,7 +977,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
                         placeholder="Select environments"
                         options={[allEnvironmentsOption, ...environments]}
                         className="basic-multi-select"
-                        menuPlacement='auto'
+                        menuPlacement="auto"
                         classNamePrefix="select"
                         hideSelectedOptions={false}
                         styles={tempMultiSelectStyles}
@@ -1031,7 +1031,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
                     onChange={handleDirectPermissionChange}
                     hideSelectedOptions={false}
                     inputValue={appInput}
-                    menuPlacement='auto'
+                    menuPlacement="auto"
                     onBlur={() => {
                         setAppInput('')
                     }}
@@ -1057,7 +1057,7 @@ export const DirectPermission: React.FC<DirectPermissionRow> = ({
                 formatOptionLabel={formatOptionLabel}
                 onChange={handleDirectPermissionChange}
                 isDisabled={!permission.team}
-                menuPlacement='auto'
+                menuPlacement="auto"
                 styles={{
                     ...tempMultiSelectStyles,
                     option: (base, state) => ({
@@ -1193,7 +1193,7 @@ export const ChartPermission: React.FC<ChartPermissionRow> = React.memo(
                         className="basic-multi-select"
                         classNamePrefix="select"
                         onChange={handleChartEditChange}
-                        menuPlacement='auto'
+                        menuPlacement="auto"
                         components={{
                             ClearIndicator: null,
                             IndicatorSeparator: null,
@@ -1231,7 +1231,7 @@ export const ChartPermission: React.FC<ChartPermissionRow> = React.memo(
                         className="mt-8 mb-8"
                         classNamePrefix="select"
                         hideSelectedOptions={false}
-                        menuPlacement='auto'
+                        menuPlacement="auto"
                         components={{
                             ClearIndicator: null,
                             IndicatorSeparator: null,
