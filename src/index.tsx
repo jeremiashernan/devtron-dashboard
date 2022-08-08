@@ -63,14 +63,28 @@ if (
         tracesSampleRate: Number(window._env_.SENTRY_TRACES_SAMPLE_RATE) || 0.2,
         ...(process.env.REACT_APP_GIT_SHA ? { release: `dashboard@${process.env.REACT_APP_GIT_SHA}` } : {}),
         environment: window._env_ && window._env_.SENTRY_ENV ? window._env_.SENTRY_ENV : 'staging',
-        ignoreErrors: [
-            /^Error: write data discarded, use flow control to avoid losing data$/,
-            /^TypeError: Failed to update a ServiceWorker*$/,
-        ],
-        beforeSend(event, hint) {
-          const error = hint.originalException;
-          console.log('beforeSendError',error)
-          return event;
+        beforeSend(event) {
+            const errorList = event?.exception?.values || []
+            for (let index = 0; index < errorList.length; index++) {
+                const error = errorList[index]
+                if (
+                    error &&
+                    ((error['type'] &&
+                        (error['type'] === '[401]' ||
+                            error['type'] === '[403]' ||
+                            error['type'] === '[504]' ||
+                            error['type'] === '[503]')) ||
+                        (error['value'] &&
+                            error['value'].indexOf('write data discarded, use flow control to avoid losing data') >=
+                                0) ||
+                        error['value'].indexOf('Failed to update a ServiceWorker') >= 0 ||
+                        error['value'].indexOf('TypeError: ServiceWorker') >= 0 ||
+                        error['value'].indexOf('Loading CSS chunk') >= 0)
+                ) {
+                    return null
+                }
+            }
+            return event
         },
     })
 }
