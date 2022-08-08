@@ -803,7 +803,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
                     break
                 }
             }
-            let material = nd[this.state.materialType] || []
+            let material = nd?.[this.state.materialType] || []
 
             return (
                 <>
@@ -849,7 +849,7 @@ class TriggerView extends Component<TriggerViewProps, TriggerViewState> {
                 })
                 if (node) break
             }
-            let material = node[this.state.materialType] || []
+            let material = node?.[this.state.materialType] || [];
 
             const redirectToCDDetails = () => {
                 this.props.history.push(
