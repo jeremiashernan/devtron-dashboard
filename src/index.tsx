@@ -65,7 +65,7 @@ if (
         environment: window._env_ && window._env_.SENTRY_ENV ? window._env_.SENTRY_ENV : 'staging',
         beforeSend(event, hint) {
             const error = hint.originalException
-            console.log('beforeSendHintErrorCode',error['code'],'beforeSendHintErrorName',error['name'])
+            console.log('beforeSend', error,'beforeSendHintErrorCode',error['code'],'beforeSendHintErrorName',error['name'])
             if (
                 error &&
                 ((error['code'] && (error['code'] === 401 || error['code'] === 403 || error['code'] === 504)) ||
