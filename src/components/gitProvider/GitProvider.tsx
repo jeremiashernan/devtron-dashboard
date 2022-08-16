@@ -221,7 +221,7 @@ function CollapsedList({
                 id ? 'update' : 'create'
             }`}
         >
-            <List onClick={(e) => toggleCollapse((t) => !t)}>
+            <List onClick={(e) => toggleCollapse(false)}>
                 <List.Logo>
                     {id ? (
                         <div className="">
