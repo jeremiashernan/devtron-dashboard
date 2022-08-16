@@ -215,13 +215,17 @@ function CollapsedList({
         update();
     }, [enabled]);
 
+    const setToggleCollapse = () => {
+        toggleCollapse(false)
+    }
+
     return (
         <article
             className={`collapsed-list ${id ? 'collapsed-list--chart' : 'collapsed-list--git dashed'} collapsed-list--${
                 id ? 'update' : 'create'
             }`}
         >
-            <List onClick={(e) => toggleCollapse(false)}>
+            <List onClick={setToggleCollapse} className={`${!id && !collapsed ? 'no-grid-column':''}`} >
                 <List.Logo>
                     {id ? (
                         <div className="">
@@ -237,11 +241,12 @@ function CollapsedList({
                             </span>
                         </div>
                     ) : (
-                        <Add className="icon-dim-24 fcb-5 vertical-align-middle" />
+                        collapsed && <Add className="icon-dim-24 fcb-5 vertical-align-middle" />
                     )}
                 </List.Logo>
                 <div className="flex left">
-                    <List.Title
+                    <List.Title 
+                        style={{color: !id && !collapsed ? 'var(--N900)': ''}}
                         title={id && !collapsed ? 'Edit git account' : name || 'Add git account'}
                         subtitle={collapsed ? url : null}
                     />
