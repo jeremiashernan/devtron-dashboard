@@ -34,6 +34,24 @@ export function CiPipelineSourceConfig({
     const [sourceValueAdv, setSourceValueAdv] = useState(_isWebhook ? '' : sourceValue)
     const [loading, setLoading] = useState(_isWebhook ? true : false)
 
+    //tippy content for regex type
+    const rendeRegexSourceVal = (): JSX.Element => {
+        return (
+            <>
+                <>
+                    <div className="fw-6">Regex</div>
+                    <p>{regex}</p>
+                </>
+
+                {window.location.href.includes('trigger') && (
+                    <>
+                        <div className="fw-6">Primary Branch</div>
+                        <p>{primaryBranchAfterRegex ? primaryBranchAfterRegex : 'Not set'}</p>
+                    </>
+                )}
+            </>
+        )
+    }
     // for non webhook case, data is already set in use state initialisation
     function _init() {
         if (!_isWebhook) {
@@ -49,6 +67,13 @@ export function CiPipelineSourceConfig({
             setSourceValueAdv(_buildHoverHtmlForWebhook(_webhookEvent.name, _condition, _webhookEvent.selectors))
             setLoading(false)
         })
+    }
+
+    function regexTippyContent() {
+        if (!_isRegex) {
+            return
+        }
+        setSourceValueAdv(rendeRegexSourceVal())
     }
 
     function _buildHoverHtmlForWebhook(eventName, condition, selectors) {
@@ -75,25 +100,8 @@ export function CiPipelineSourceConfig({
 
     useEffect(() => {
         _init()
+        regexTippyContent()
     }, [])
-
-    const rendeRegexSourceVal = () => {
-        return (
-            <>
-                <>
-                    <div className="fw-6">Regex</div>
-                    <p>{regex}</p>
-                </>
-
-                {window.location.href.includes('trigger') && (
-                    <>
-                        <div className="fw-6">Primary Branch</div>
-                        <p>{primaryBranchAfterRegex ? primaryBranchAfterRegex : 'Not set'}</p>
-                    </>
-                )}
-            </>
-        )
-    }
 
     return (
         <div className={showTooltip ? 'branch-name' : ''}>
@@ -108,16 +116,11 @@ export function CiPipelineSourceConfig({
                         />
                     )}
                     {showTooltip && (
-                        <Tippy
-                            className="default-tt"
-                            arrow={false}
-                            placement="bottom"
-                            content={_isRegex ? rendeRegexSourceVal() : sourceValue}
-                        >
+                        <Tippy className="default-tt" arrow={false} placement="bottom" content={sourceValueAdv}>
                             <div>
                                 {!baseText && (
                                     <div className="flex left">
-                                        <div className="ellipsis-right">{sourceValue}</div>
+                                        <div className="ellipsis-right">{sourceValueBase}</div>
                                         <Info className="icon-dim-12 fcn-5 ml-4" />
                                     </div>
                                 )}
