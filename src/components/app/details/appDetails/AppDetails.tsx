@@ -5,6 +5,7 @@ import {
     Host,
     getAppDetailsURL,
     getAppTriggerURL,
+    DOCUMENTATION,
 } from '../../../../config';
 import {
     NavigationArrow,
@@ -107,7 +108,7 @@ export default function AppDetail() {
     return (
         <div className="app-details-page-wrapper">
                 {!params.envId && otherEnvsResult?.result?.length > 0 && (
-                    <div className="w-100 pt-16 pr-24 pb-20 pl-24">
+                    <div className="w-100 pt-16 pr-20 pb-20 pl-20">
                         <SourceInfo
                             appDetails={null}
                             environments={otherEnvsResult?.result}
@@ -333,7 +334,7 @@ export const Details: React.FC<{
     }
 
     return <React.Fragment>
-         <div className="w-100 pt-16 pr-24 pb-20 pl-24">
+         <div className="w-100 pt-16 pr-20 pb-20 pl-20">
                         <SourceInfo
                             appDetails={appDetails}
                             setDetailed={toggleDetailedStatus}
@@ -383,7 +384,7 @@ export const Details: React.FC<{
                             environmentName={appDetails.environmentName}
                         />
                     )}
-                    {showScanDetailsModal && 
+                    {showScanDetailsModal &&
                         <ScanDetailsModal
                             showAppInfo={false}
                             uniqueId={{
@@ -906,10 +907,10 @@ export function AppNotConfigured({
         <section className="app-not-configured w-100" style={style}>
             <img src={image || AppNotConfiguredIcon} />
             <h3 className="mb-8 mt-20 fs-16 fw-600 w-300">{title || 'Finish configuring this application'}</h3>
-                <p className="mb-20 fs-13 w-300"> {subtitle ? subtitle : 
+                <p className="mb-20 fs-13 w-300"> {subtitle ? subtitle :
                     <>This application is not fully configured. Complete the configuration, trigger a deployment and come
                     back here.
-                    <a href="https://docs.devtron.ai/devtron/user-guide/creating-application" target="_blank">
+                    <a href={DOCUMENTATION.APP_CREATE} target="_blank">
                         Need help?
                     </a></>}
                 </p>
