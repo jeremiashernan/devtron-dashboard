@@ -47,7 +47,7 @@ import { ReactComponent as AlertTriangle } from '../../../../assets/icons/ic-ale
 import { ReactComponent as DropDownIcon } from '../../../../assets/icons/appstatus/ic-chevron-down.svg';
 import { ReactComponent as ForwardArrow } from '../../../../assets/icons/ic-arrow-forward.svg'
 import Tippy from '@tippyjs/react';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import Select, { components } from 'react-select';
 import { SourceInfo } from './SourceInfo'
 import {
@@ -70,6 +70,7 @@ import { ExternalLink, ExternalLinksAndToolsType, OptionTypeWithIcon } from '../
 import { sortByUpdatedOn } from '../../../externalLinks/ExternalLinks.utils';
 import NodeTreeDetailTab from '../../../v2/appDetails/NodeTreeDetailTab';
 import noGroups from '../../../../assets/img/ic-feature-deploymentgroups@3x.png'
+import { AppType } from '../../../v2/appDetails/appDetails.type';
 
 export type SocketConnectionType = 'CONNECTED' | 'CONNECTING' | 'DISCONNECTED' | 'DISCONNECTING';
 
@@ -185,7 +186,7 @@ export const Details: React.FC<{
     async function callAppDetailsAPI() {
         try {
             const response = await appDetailsAPI(params.appId, params.envId, 25000);
-            IndexStore.publishAppDetails(response.result)
+            IndexStore.publishAppDetails(response.result, AppType.DEVTRON_APP)
             setAppDetailsResult(response)
             if (response.result?.clusterId) {
                 Promise.all([getMonitoringTools(), getExternalLinks(response.result.clusterId)])
