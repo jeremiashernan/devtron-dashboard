@@ -19,7 +19,7 @@ import {
     isVersionLessThanOrEqualToTarget,
     isChartRef3090OrBelow,
 } from '../common'
-import { dataHeaders, getTypeGroups, sampleJSONs, SecretForm } from '../secrets/Secret'
+import { SecretForm } from '../secrets/Secret'
 import { KeyValueInput, useKeyValueYaml } from '../configMaps/ConfigMap'
 import { toast } from 'react-toastify'
 import { Progressing } from '../common'
@@ -30,6 +30,7 @@ import { PATTERNS, EXTERNAL_TYPES, ROLLOUT_DEPLOYMENT } from '../../config'
 import { KeyValueFileInput } from '../util/KeyValueFileInput'
 import { getAppChartRef } from '../../services/service'
 import './environmentOverride.scss'
+import { dataHeaders, getTypeGroups, sampleJSONs, hasHashiOrAWS, hasESO } from '../secrets/secret.utils'
 
 const SecretContext = React.createContext(null)
 function useSecretContext() {
@@ -220,13 +221,8 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
     const [secretData, setSecretData] = useState(tempSecretData)
     const [secretDataYaml, setSecretDataYaml] = useState(YAML.stringify(jsonForSecretDataYaml))
     const [codeEditorRadio, setCodeEditorRadio] = useState('data')
-    const isHashiOrAWS =
-        externalType === 'AWSSecretsManager' || externalType === 'AWSSystemManager' || externalType === 'HashiCorpVault'
-    const isESO =
-        externalType === 'ESO_GoogleSecretsManager' ||
-        externalType === 'ESO_AzureSecretsManager' ||
-        externalType === 'ESO_AWSSecretsManager' ||
-        externalType === 'ESO_HashiCorpVault'
+    const isHashiOrAWS = hasHashiOrAWS(externalType)
+    const isESO = hasESO(externalType)
     const memoisedReducer = React.useCallback(reducer, [appId, envId])
     const initialState = {
         mountPath: mountPath ? mountPath : defaultMountPath,
@@ -250,11 +246,12 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
         PATTERNS.CONFIG_MAP_AND_SECRET_KEY,
         `Key must consist of alphanumeric characters, '.', '-' and '_'`,
     )
+    const isEsoSecretData = esoSecretData?.secretStore && esoSecretData?.esoData.length > 0
     const [yamlMode, toggleYamlMode] = useState(true)
     const [esoDataSecret, setEsoData] = useState(esoSecretData?.esoData)
     const [secretStore, setSecretStore] = useState(esoSecretData?.secretStore)
     const [isFilePermissionChecked, setIsFilePermissionChecked] = useState(!!filePermission)
-    const [esoSecretYaml, setEsoYaml] = useState(YAML.stringify(esoSecretData || {}))
+    const [esoSecretYaml, setEsoYaml] = useState(YAML.stringify(isEsoSecretData ? esoSecretData : {}))
     const sample = YAML.stringify(sampleJSONs[externalType] || sampleJSONs["default"])
     const isChartVersion309OrBelow =
         appChartRef &&
@@ -262,7 +259,7 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
         isVersionLessThanOrEqualToTarget(appChartRef.version, [3, 9]) &&
         isChartRef3090OrBelow(appChartRef.id)
 
-
+        
     useEffect(() => {
         if(isESO){
             toggleYamlMode(true)
