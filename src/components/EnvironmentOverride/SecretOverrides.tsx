@@ -60,13 +60,14 @@ export default function SecretOverrides({ parentState, setParentState, ...props 
         }
     }, [loading])
 
-    if (loading && !result) return null
+    if (loading && !result) return <Progressing fullHeight size={48} styles={{ height: 'calc(100% - 80px)' }} />
     if (error) {
         setParentState('failed')
         showError(error)
         if (!result) return null
     }
-    if (parentState === 'loading' || !result) return null
+    if (parentState === 'loading' || !result) return <Progressing fullHeight size={48} styles={{ height: 'calc(100% - 80px)' }} />
+
     let {
         result: { configData, id },
     } = result
@@ -75,9 +76,6 @@ export default function SecretOverrides({ parentState, setParentState, ...props 
 
     return (
         <section className="secret-overrides">
-            <label htmlFor="" className="form__label bold">
-                Secrets
-            </label>
             <SecretContext.Provider value={{ secrets, id, reload }}>
                 {secrets &&
                     Array.from(secrets)
