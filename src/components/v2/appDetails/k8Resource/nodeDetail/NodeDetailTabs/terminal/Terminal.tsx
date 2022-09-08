@@ -294,6 +294,12 @@ function TerminalView(terminalViewProps: TerminalViewProps) {
             });
     };
 
+    const onClickResume = (e) => {
+        e.stopPropagation()
+        terminalViewProps.setSocketConnection(SOCKET_CONNECTION_TYPE.CONNECTING)
+        setIsReconnection(true)
+    }
+
     const renderConnectionStrip = () => {
         return !isOnline ? (
             <div className="terminal-strip capitalize pl-20 pr-20 w-100 bcr-7 cn-0">
@@ -329,13 +335,8 @@ function TerminalView(terminalViewProps: TerminalViewProps) {
                         <span>.&nbsp;</span>
                         <button
                             type="button"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                terminalViewProps.setSocketConnection(SOCKET_CONNECTION_TYPE.CONNECTING)
-                                setIsReconnection(true)
-                            }}
-                            className="cursor transparent inline-block"
-                            style={{ textDecoration: 'underline' }}
+                            onClick={onClickResume}
+                            className="cursor transparent inline-block text-underline"
                         >
                             Resume
                         </button>
