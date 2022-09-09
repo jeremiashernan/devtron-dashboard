@@ -674,7 +674,7 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
                                         <span className="cr-5">Supported for Chart Versions 3.10 and above.</span>
                                         <span className="cn-7 ml-5">Learn more about </span>
                                         <a
-                                            href={DOCUMENTATION.APP_CREATE_DEPLOYMENT_TEMPLATE}
+                                            href={DOCUMENTATION.APP_ROLLOUT_DEPLOYMENT_TEMPLATE}
                                             rel="noreferrer noopener"
                                             target="_blank"
                                         >
@@ -716,7 +716,7 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
                                             <span className="cr-5">Supported for Chart Versions 3.10 and above.</span>
                                             <span className="cn-7 ml-5">Learn more about </span>
                                             <a
-                                                href={DOCUMENTATION.APP_CREATE_DEPLOYMENT_TEMPLATE}
+                                                href={DOCUMENTATION.APP_ROLLOUT_DEPLOYMENT_TEMPLATE}
                                                 rel="noreferrer noopener"
                                                 target="_blank"
                                             >
