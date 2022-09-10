@@ -66,14 +66,14 @@ export default function SecretOverrides({ parentState, setParentState }: SecretO
         showError(error)
         if (!result) return null
     }
-    if (parentState === 'loading' || !result) return <Progressing fullHeight size={48} styles={{ height: 'calc(100% - 80px)' }} />
+    if (parentState === ComponentStates.loading || !result) return <Progressing fullHeight size={48} styles={{ height: 'calc(100% - 80px)' }} />
 
     let {
         result: { configData, id },
     } = result
     configData = [{ name: '' }].concat(configData)
     let secrets = mapByKey(configData, 'name')
-    
+
     return (
         <section className="secret-overrides">
             <SecretContext.Provider value={{ secrets, id, reload }}>
@@ -191,14 +191,11 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
         }
     }
 
-    let tempSecretData = secretData || []
-    if (tempSecretData.length === 0 && defaultSecretData) {
-        tempSecretData = defaultSecretData
-    }
+    let tempSecretData = (secretData || []).length === 0 && defaultSecretData ? defaultSecretData : secretData || []
     tempSecretData = tempSecretData.map((s) => {
         return { fileName: s.key, name: s.name, isBinary: s.isBinary, property: s.property }
     })
-
+    
     let jsonForSecretDataYaml: any[] =
        secretData ? secretData : []
     if (jsonForSecretDataYaml.length === 0 && defaultSecretData) {
@@ -224,19 +221,14 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
             return name && isGlobal
                 ? Object.keys(data).map((k) => ({ k, v: data[k], keyError: '', valueError: '' }))
                 : data
-        } else if (secretData) {
-            return name && isGlobal && secretData
-        } else if (esoSecretData?.esoData) {
-            return name && isGlobal && esoSecretData
+        } else if (name && isGlobal) {
+            return secretData || (esoSecretData?.esoData && esoSecretData)
         } else {
             return null
         }
     }
 
-    let tempEsoSecretData = esoSecretData
-    if (!tempEsoSecretData?.esoData && defaultESOSecretData) {
-        tempEsoSecretData = defaultESOSecretData
-    }
+    let tempEsoSecretData = (esoSecretData?.esoData || []).length === 0 && defaultESOSecretData ? defaultESOSecretData : esoSecretData
 
     const [roleARN, setRoleARN] = useState(secrets.has(name) ? secrets.get(name)?.roleARN : '')
     const [secretDataValue, setSecretData] = useState(tempSecretData)
@@ -342,9 +334,9 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
                 })
                 setSecretData(json)
             }
-            if(configData[0].esoSecretData.esoData) {
-                setEsoData(configData[0].esoSecretData?.esoData)
-                setSecretStore(configData[0].esoSecretData?.secretStore)
+            if(configData[0].esoSecretData?.esoData) {
+                setEsoData(configData[0].esoSecretData.esoData)
+                setSecretStore(configData[0].esoSecretData.secretStore)
                 setEsoYaml(YAML.stringify(configData[0].esoSecretData))
             }
         } catch (err) {
@@ -405,27 +397,29 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
         try {
             let dataArray = yamlMode ? tempArr.current : state.duplicate
             if (externalType === '' && dataArray.length == 0) {
-                toast.warn('Secret configuration without any data is not allowed.')
+                toast.error('Secret configuration without any data is not allowed.')
                 return
             }
             if (isHashiOrAWS || isESO) {
-                let secretDataArray = isESO ? esoDataSecret : secretDataValue 
-                let isValid = !isESO
-                    ? secretDataArray?.reduce((isValid, s) => {
-                          isValid = isValid && !!s.fileName && !!s.name && !!secretDataValue.length
-                          return isValid
-                      },!!secretDataValue.length)
-                    : secretDataArray?.reduce((isValid, s) => {
-                          isValid =
-                              isValid && !!s.secretKey && !!s.key && (hasProperty(externalType) ? !!s.property : true)
-                          return isValid
-                      }, !!secretStore && !!esoDataSecret?.length)
+                let isValid = true
+                if (isESO) {
+                    isValid = esoDataSecret?.reduce((isValid, s) => {
+                        isValid = isValid && !!s.secretKey && !!s.key && (hasProperty(externalType) ? !!s.property : true)
+                        return isValid
+                    }, !!secretStore && !!esoDataSecret?.length)
+                } else {
+                    isValid = secretDataValue.reduce((isValid, s) => {
+                        isValid = isValid && !!s.fileName && !!s.name
+                        return isValid
+                    }, !!secretDataValue.length)
+                }
+    
                 if (!isValid) {
                     !isESO
-                        ? toast.warn('Please check key and name')
+                        ? toast.error('Please check key and name')
                         : !secretStore
-                        ? toast.warn('Please check secretStore')
-                        : toast.warn(`Please check key${hasProperty(externalType) ? ', property' : ''}  and secretKey`)
+                        ? toast.error('Please check secretStore')
+                        : toast.error(`Please check key${hasProperty(externalType) ? ', property' : ''}  and secretKey`)
                     return
                 }
             }
@@ -582,7 +576,7 @@ export function OverrideSecretForm({ name, appChartRef, toggleCollapse }) {
                 setSecretData(json)
             }
             if(isESO && Array.isArray(json?.esoData)){
-                setEsoData(json?.esoData)
+                setEsoData(json.esoData)
             }
         } catch (error) {
         }
