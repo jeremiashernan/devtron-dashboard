@@ -12,13 +12,12 @@ import { GlobalConfigCheckList } from '../checkList/GlobalConfigCheckList'
 import { getAppCheckList } from '../../services/service'
 import { showError } from '../common'
 import './globalConfigurations.scss'
-import { Routes, SERVER_MODE } from '../../config/constants'
+import { ModuleNameMap, Routes, SERVER_MODE } from '../../config/constants'
 import { mainContext } from '../common/navigation/NavigationRoutes'
 import ExternalLinks from '../externalLinks/ExternalLinks'
 import PageHeader from '../common/header/PageHeader'
 import { ReactComponent as Dropdown } from '../../assets/icons/ic-chevron-down.svg'
 import { ModuleStatus } from '../v2/devtronStackManager/DevtronStackManager.type'
-import { ModuleNameMap } from '../v2/devtronStackManager/DevtronStackManager.utils'
 import { getModuleInfo } from '../v2/devtronStackManager/DevtronStackManager.service'
 
 const HostURLConfiguration = lazy(() => import('../hostURL/HostURL'))
@@ -301,7 +300,7 @@ function NavItem({ hostURLConfig, serverMode }) {
                             <NavLink
                                 key={`nav_item_${index}`}
                                 to={route.href}
-                                className={`cursor ${collapsedState[route.name] ? '' : 'fw-6'} flex content-space`}
+                                className={`cursor ${collapsedState[route.name] ? '' : 'fw-6'} flex dc__content-space`}
                                 onClick={(e) => {
                                     handleGroupCollapsedState(e, route)
                                 }}
@@ -566,7 +565,7 @@ export function ProtectedInput({
             <label htmlFor="" className={`form__label ${labelClassName}`}>
                 {label}
             </label>
-            <div className="position-rel w-100">
+            <div className="dc__position-rel w-100">
                 <input
                     type={shown ? 'text' : 'password'}
                     tabIndex={tabIndex}

@@ -38,7 +38,7 @@ import {
 } from '../../common'
 import NoIntegrations from '../../../assets/img/empty-noresult@2x.png'
 import LatestVersionCelebration from '../../../assets/gif/latest-version-celebration.gif'
-import { DOCUMENTATION, URLS } from '../../../config'
+import { DOCUMENTATION, ModuleNameMap, URLS } from '../../../config'
 import Carousel from '../../common/Carousel/Carousel'
 import { toast } from 'react-toastify'
 import {
@@ -46,7 +46,6 @@ import {
     DEVTRON_UPGRADE_MESSAGE,
     handleAction,
     isLatestVersionAvailable,
-    ModuleNameMap,
     ModulesSection,
     MODULE_CONFIGURATION_DETAIL_MAP,
     MORE_MODULE_DETAILS,
@@ -90,36 +89,46 @@ const ModuleDetailsCard = ({
     handleModuleCardClick,
     fromDiscoverModules,
 }: ModuleDetailsCardType): JSX.Element => {
-    return (
-        <div
-            className={`module-details__card flex left column br-8 p-16 mr-20 mb-20 ${className || ''}`}
-            {...(handleModuleCardClick && {
-                onClick: () => handleModuleCardClick(moduleDetails, fromDiscoverModules),
-            })}
-        >
-            {getInstallationStatusLabel(moduleDetails.installationStatus)}
-            <img className="module-details__card-icon mb-16" src={moduleDetails.icon} alt={moduleDetails.title} />
-            <div className="module-details__card-name fs-16 fw-6 cn-9 mb-4">{moduleDetails.title}</div>
-            <div className="module-details__card-info fs-13 fw-4 cn-7 lh-20">
-                {moduleDetails.name === MORE_MODULE_DETAILS.name ? (
-                    <>
-                        You can&nbsp;
-                        <a
-                            href="https://github.com/devtron-labs/devtron/issues/new/choose"
-                            className="cb-5 fw-6"
-                            target="_blank"
-                            rel="noreferrer noopener"
-                        >
-                            submit a ticket
-                        </a>
-                        &nbsp;to request an integration
-                    </>
-                ) : (
-                    moduleDetails.info
-                )}
-            </div>
-        </div>
-    )
+  const handleOnClick = (): void => {
+      if (moduleDetails.installationStatus === ModuleStatus.UNKNOWN) {
+          toast.error(
+              <ToastBody
+                  title="Unknown integration status"
+                  subtitle="There was an error fetching the integration status. Please try again later."
+              />,
+          )
+      } else if (handleModuleCardClick) {
+          handleModuleCardClick(moduleDetails, fromDiscoverModules)
+      }
+  }
+  return (
+      <div
+          className={`module-details__card flex left column br-8 p-16 mr-20 mb-20 ${className || ''}`}
+          onClick={handleOnClick}
+      >
+          {getInstallationStatusLabel(moduleDetails.installationStatus)}
+          <img className="module-details__card-icon mb-16" src={moduleDetails.icon} alt={moduleDetails.title} />
+          <div className="module-details__card-name fs-16 fw-6 cn-9 mb-4">{moduleDetails.title}</div>
+          <div className="module-details__card-info fs-13 fw-4 cn-7 lh-20">
+              {moduleDetails.name === MORE_MODULE_DETAILS.name ? (
+                  <>
+                      You can&nbsp;
+                      <a
+                          href="https://github.com/devtron-labs/devtron/issues/new/choose"
+                          className="cb-5 fw-6"
+                          target="_blank"
+                          rel="noreferrer noopener"
+                      >
+                          submit a ticket
+                      </a>
+                      &nbsp;to request an integration
+                  </>
+              ) : (
+                  moduleDetails.info
+              )}
+          </div>
+      </div>
+  )
 }
 
 export const ModulesListingView = ({
@@ -164,7 +173,7 @@ const getUpdateStatusLabel = (
     let updateStatusLabel = null
 
     if (installationStatus === ModuleStatus.UPGRADING) {
-        updateStatusLabel = <span className="loading-dots">{showInitializing ? 'Initializing' : 'Updating'}</span>
+        updateStatusLabel = <span className="dc__loading-dots">{showInitializing ? 'Initializing' : 'Updating'}</span>
     } else if (installationStatus === ModuleStatus.UPGRADE_FAILED || installationStatus === ModuleStatus.TIMEOUT) {
         updateStatusLabel = 'Update failed'
     } else if (installationStatus !== ModuleStatus.UNKNOWN && isLatestVersionAvailable(currentVersion, newVersion)) {
@@ -173,7 +182,7 @@ const getUpdateStatusLabel = (
 
     return updateStatusLabel ? (
         <>
-            <span className="bullet ml-4 mr-4" />
+            <span className="dc__bullet ml-4 mr-4" />
             {updateStatusLabel}
         </>
     ) : null
@@ -203,7 +212,7 @@ export const NavItem = ({
                         <span className="fs-13 ml-12">{route.name}</span>
                     )}
                     {route.name === 'Installed' && (
-                        <div className="installed-modules-link flex content-space ml-12" style={{ width: '175px' }}>
+                        <div className="installed-modules-link flex dc__content-space ml-12" style={{ width: '175px' }}>
                             <span className="fs-13">{route.name}</span>
                             <span className="badge">{installedModulesCount || 0}</span>
                         </div>
@@ -232,7 +241,7 @@ export const NavItem = ({
 
     return (
         <div className="flex column left">
-            <div className="section-heading cn-6 fs-12 fw-6 pl-8 mb-8 text-uppercase">Integrations</div>
+            <div className="section-heading cn-6 fs-12 fw-6 pl-8 mb-8 dc__uppercase">Integrations</div>
             {ModulesSection.map((route) => getNavLink(route))}
             <hr className="mt-8 mb-8 w-100 checklist__divider" />
             {getNavLink(AboutSection)}
@@ -256,7 +265,7 @@ export const StackPageHeader = ({
     const renderBreadcrumbs = (headerTitleName, detailsMode) => {
         return (
             <div className="m-0 flex left ">
-                <div onClick={() => handleRedirectToModule(detailsMode)} className="devtron-breadcrumb__item">
+                <div onClick={() => handleRedirectToModule(detailsMode)} className="dc__devtron-breadcrumb__item">
                     <span className="cb-5 fs-16 cursor">{headerTitleName} </span>
                 </div>
                 <span className="fs-16 cn-9 ml-4 mr-4"> / </span>
@@ -311,7 +320,7 @@ const InstallationStatus = ({
             {(installationStatus === ModuleStatus.INSTALLING || installationStatus === ModuleStatus.UPGRADING) && (
                 <>
                     <Progressing size={24} />
-                    <div className="mt-12 loading-dots">
+                    <div className="mt-12 dc__loading-dots">
                         {getProgressingLabel(isUpgradeView, canViewLogs, logPodName)}
                     </div>
                 </>
@@ -516,8 +525,8 @@ export const InstallationWrapper = ({
         if (!showPreRequisiteConfirmationModal) return null
         return (
             <VisibleModal className="transition-effect">
-                <div className="modal__body upload-modal no-top-radius mt-0 p-0 w-600">
-                    <div className="flexbox content-space pl-20 pr-20 pt-16 pb-16 border-bottom">
+                <div className="modal__body upload-modal dc__no-top-radius mt-0 p-0 w-600">
+                    <div className="flexbox dc__content-space pl-20 pr-20 pt-16 pb-16 dc__border-bottom">
                         <div className="fw-6 fs-16 cn-9">
                             {`Pre-requisites for update to ${upgradeVersion.toLowerCase()}`}
                         </div>
@@ -540,7 +549,7 @@ export const InstallationWrapper = ({
                                 </a>
                             </div>
                         ))}
-                        <div className="en-2 bw-1 flexbox content-space pt-8 pr-12 pb-8 pl-12 br-4">
+                        <div className="en-2 bw-1 flexbox dc__content-space pt-8 pr-12 pb-8 pl-12 br-4">
                             <span className="cn-9 fs-13 fw-6">Facing issues?</span>
                             <a
                                 className="pre-requisite-modal__help-chat fs-13 cb-5 flex left"
@@ -552,7 +561,7 @@ export const InstallationWrapper = ({
                             </a>
                         </div>
                     </div>
-                    <div className="p-16 border-top flexbox content-space">
+                    <div className="p-16 dc__border-top flexbox dc__content-space">
                         <Checkbox
                             isChecked={preRequisiteChecked}
                             value={CHECKBOX_VALUE.CHECKED}
@@ -565,7 +574,7 @@ export const InstallationWrapper = ({
                         <button
                             onClick={handleActionButtonClick}
                             disabled={!preRequisiteChecked}
-                            className="cta ml-12 no-decor"
+                            className="cta ml-12 dc__no-decor"
                         >
                             Update
                         </button>
@@ -813,7 +822,7 @@ const ModuleNotConfigured = ({ moduleName }: { moduleName: string }): JSX.Elemen
                         exact
                         to={configNoteDetail.link}
                         activeClassName="active"
-                        className="mt-8 no-decor fs-13 fw-6"
+                        className="mt-8 dc__no-decor fs-13 fw-6"
                     >
                         {configNoteDetail.linkText}
                     </NavLink>
@@ -836,7 +845,7 @@ const UpgradeNote = (): JSX.Element => {
                         exact
                         to={URLS.STACK_MANAGER_ABOUT}
                         activeClassName="active"
-                        className="mt-8 no-decor fs-13 fw-6"
+                        className="mt-8 dc__no-decor fs-13 fw-6"
                     >
                         Check for Devtron updates
                     </NavLink>

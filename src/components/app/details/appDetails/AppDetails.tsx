@@ -177,7 +177,7 @@ export const Details: React.FC<{
         })
     let deploymentStatusTimer = null
     const isExternalToolAvailable: boolean = externalLinksAndTools.externalLinks.length > 0 && externalLinksAndTools.monitoringTools.length > 0
-    const interval = 30000;
+    const interval = window._env_.DEVTRON_APP_DETAILS_POLLING_INTERVAL || 30000;
     const appDetails = appDetailsResult?.result;
     const syncSSE = useEventSource(
         `${Host}/api/v1/applications/stream?name=${appDetails?.appName}-${appDetails?.environmentName}`,
@@ -432,14 +432,6 @@ export const Details: React.FC<{
                             environmentName={appDetails.environmentName}
                         />
                     )}
-                    {deploymentDetailedStatus && (
-                        <DeploymentStatusDetailModal
-                            close={hideDeploymentDetailModal}
-                            appName={appDetails.appName}
-                            environmentName={appDetails.environmentName}
-                            deploymentStatusDetailsBreakdownData={deploymentStatusDetailsBreakdownData}
-                        />
-                    )}
                     {showScanDetailsModal &&
                         <ScanDetailsModal
                             showAppInfo={false}
@@ -472,11 +464,11 @@ export const Details: React.FC<{
                                 subtitle={
                                     <p>
                                         Pods for this application will be
-                                        <b>
+                                        <b className='mr-4 ml-4'>
                                             scaled
                                             {hibernateConfirmationModal === 'hibernate'
-                                                ? 'down to 0'
-                                                : ' upto its original count'}
+                                                ? ' down to 0 '
+                                                : ' upto its original count '}
                                             on {appDetails.environmentName}
                                         </b>
                                         environment.
@@ -592,12 +584,12 @@ export function EventsLogsTabSelector({ onMouseDown = null }) {
                     }
             }
         >
-            <div className={`pl-20 flex left tab-container ${!!params.tab ? 'cursor--ns-resize' : 'pointer'}`}>
+            <div className={`pl-20 flex left tab-container ${!!params.tab ? 'dc__cursor--ns-resize ' : 'pointer'}`}>
                 {[NodeDetailTabs.MANIFEST, NodeDetailTabs.EVENTS,
                 ...(kind === Nodes.Pod ? [NodeDetailTabs.LOGS, NodeDetailTabs.TERMINAL] : []),
                 ].map((title, idx) => (
                     <div key={idx}
-                        className={`tab capitalize ${params.tab?.toLowerCase() === title.toLowerCase() ? 'active' : ''}`}
+                        className={`tab dc__first-letter-capitalize ${params.tab?.toLowerCase() === title.toLowerCase() ? 'active' : ''}`}
                         onClick={(e) => {
                             e.stopPropagation();
                             history.push(generatePath(path, { ...params, tab: title }) + location.search);
@@ -607,7 +599,7 @@ export function EventsLogsTabSelector({ onMouseDown = null }) {
                     </div>
                 ))}
             </div>
-            <div className={`flex right pr-20 ${!!params.tab ? 'cursor--ns-resize' : 'pointer'}`}>
+            <div className={`flex right pr-20 ${!!params.tab ? 'dc__cursor--ns-resize ' : 'pointer'}`}>
                 <div className="flex pointer"
                     style={{ height: '36px', width: '36px' }}
                     onClick={(e) => {
@@ -1010,7 +1002,7 @@ export function EnvironmentNotConfigured({ environments, ...props }) {
                         : `Please select an environment to view app details`}
                 </p>
                 {environmentsMap[+envId] && (
-                    <Link className="cta no-decor" to={getAppTriggerURL(appId)}>
+                    <Link className="cta dc__no-decor" to={getAppTriggerURL(appId)}>
                         Go to Trigger
                     </Link>
                 )}
@@ -1135,7 +1127,7 @@ export const ProgressStatus: React.FC<{
                                                     <td valign="top">
                                                         <div className="kind-name">
                                                             <div>{nodeDetails.kind}/</div>
-                                                            <div className="ellipsis-left">{nodeDetails.name}</div>
+                                                            <div className="dc__ellipsis-left">{nodeDetails.name}</div>
                                                         </div>
                                                     </td>
                                                     <td

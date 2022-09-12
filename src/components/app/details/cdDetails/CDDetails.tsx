@@ -78,7 +78,7 @@ export default function CDDetails() {
 
     const { path } = useRouteMatch()
     const { pathname } = useLocation()
-    const { push } = useHistory()
+    const { replace } = useHistory()
     const pipelines = result?.length ? result[1]?.pipelines : []
     const deploymentAppType = pipelines?.find(pipeline=> pipeline.id === Number(pipelineId))?.deploymentAppType
     useInterval(pollHistory, 30000)
@@ -157,7 +157,7 @@ export default function CDDetails() {
     useEffect(() => {
         if (pipelineId || !envId || pipelines?.length === 0) return
         const cdPipelinesMap = mapByKey(pipelines, 'environmentId')
-        push(generatePath(path, { appId, envId, pipelineId: cdPipelinesMap.get(+envId).id }))
+        replace(generatePath(path, { appId, envId, pipelineId: cdPipelinesMap.get(+envId).id }))
     }, [pipelineId, envId, pipelines])
 
     useEffect(() => {
@@ -177,7 +177,7 @@ export default function CDDetails() {
                 pipelineId,
                 triggerId: deploymentHistoryResult.result[0].id,
             })
-            push(newUrl)
+            replace(newUrl)
         }
     }, [deploymentHistoryResult, loadingDeploymentHistory, deploymentHistoryError])
 
@@ -191,7 +191,7 @@ export default function CDDetails() {
     if (loading || (loadingDeploymentHistory && triggerHistory.size === 0)) return <Progressing pageLoader />
     if (result && !Array.isArray(result[0].result)) return <AppNotConfigured />
     if (result && !Array.isArray(result[1]?.pipelines)) return <AppNotConfigured />
-    if (!result || dependencyState[2] !== envId) return null
+    if (!result || (envId && dependencyState[2] !== envId)) return null
 
     return (
         <>
@@ -325,26 +325,26 @@ const DeploymentCard: React.FC<{
                     }}
                 >
                     <div
-                        className={`app-summary__icon icon-dim-20 ${triggerDetails.status
+                        className={`dc__app-summary__icon icon-dim-20 ${triggerDetails.status
                             ?.toLocaleLowerCase()
                             .replace(/\s+/g, '')}`}
-                    ></div>
-                    <div className="flex column left ellipsis-right">
+                    />
+                    <div className="flex column left dc__ellipsis-right">
                         <div className="cn-9 fs-14">{moment(triggerDetails.startedOn).format(Moment12HourFormat)}</div>
                         <div className="flex left cn-7 fs-12">
-                            <div className="capitalize">
+                            <div className="dc__capitalize">
                                 {['pre', 'post'].includes(triggerDetails.stage?.toLowerCase())
                                     ? `${triggerDetails.stage}-deploy`
                                     : triggerDetails.stage}
                             </div>
-                            <span className="bullet bullet--d2 ml-4 mr-4"></span>
+                            <span className="dc__bullet dc__bullet--d2 ml-4 mr-4"></span>
                             {triggerDetails.artifact && (
-                                <div className="app-commit__hash app-commit__hash--no-bg">
+                                <div className="dc__app-commit__hash dc__app-commit__hash--no-bg">
                                     <img src={docker} className="commit-hash__icon grayscale" />
                                     {triggerDetails.artifact.split(':')[1].slice(-12)}
                                 </div>
                             )}
-                            <span className="bullet bullet--d2 ml-4 mr-4"></span>
+                            <span className="dc__bullet dc__bullet--d2 ml-4 mr-4"></span>
                             <div className="cn-7 fs-12">
                                 {triggerDetails.triggeredBy === 1 ? 'auto trigger' : triggerDetails.triggeredByEmail}
                             </div>
@@ -531,7 +531,7 @@ const TriggerOutput: React.FC<{
                                     : () => cancelPrePostCdTrigger(pipelineId, triggerId)
                             }
                         />
-                        <ul className="pl-20 tab-list tab-list--nodes border-bottom">
+                        <ul className="pl-20 tab-list tab-list--nodes dc__border-bottom">
                             {triggerDetails.stage === 'DEPLOY' && deploymentAppType!== DeploymentAppType.helm && (
                                 <li className="tab-list__tab">
                                     <NavLink
@@ -697,7 +697,6 @@ const HistoryLogs: React.FC<{
 
 const SelectEnvironment: React.FC<{ environments: AppEnvironment[] }> = ({ environments }) => {
     const params = useParams<{ envId: string; appId: string }>()
-    const { environmentId: previousEnvironmentId, setEnvironmentId } = useAppContext()
     const { push } = useHistory()
     const { path } = useRouteMatch()
     const environmentsMap = mapByKey(environments, 'environmentId')
@@ -709,26 +708,13 @@ const SelectEnvironment: React.FC<{ environments: AppEnvironment[] }> = ({ envir
         }
     }
 
-    const handlePreviousEnvironment = () => {
-        if (params.envId) setEnvironmentId(+params.envId)
-        else {
-            if (previousEnvironmentId && environmentsMap.has(previousEnvironmentId)) {
-                handleEnvironmentChange(previousEnvironmentId)
-            } else {
-                setEnvironmentId(null)
-            }
-        }
-    }
-
-    useEffect(handlePreviousEnvironment, [params.envId, previousEnvironmentId, environmentsMap])
-
     const environment = environmentsMap.get(+params.envId)
     return (
         <div className="select-pipeline-wrapper w-100 pl-16 pr-16" style={{ overflow: 'hidden' }}>
             <label className="form__label">Select Environment</label>
             <Select onChange={(event) => handleEnvironmentChange(+event.target.value)} value={+params.envId}>
                 <Select.Button rootClassName="select-button--default">
-                    <div className="ellipsis-left w-100 flex right">
+                    <div className="dc__ellipsis-left w-100 flex right">
                         {environment ? environment.environmentName : 'Select environment'}
                     </div>
                 </Select.Button>
@@ -737,7 +723,7 @@ const SelectEnvironment: React.FC<{ environments: AppEnvironment[] }> = ({ envir
                         .sort((a, b) => a.environmentName.localeCompare(b.environmentName))
                         .map((p) => (
                             <Select.Option key={p.environmentId} value={p.environmentId}>
-                                <span className="ellipsis-left">{p.environmentName}</span>
+                                <span className="dc__ellipsis-left">{p.environmentName}</span>
                             </Select.Option>
                         ))}
             </Select>
