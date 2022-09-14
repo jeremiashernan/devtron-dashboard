@@ -18,6 +18,11 @@ export interface CDMaterialProps {
     parentPipelineId?: string
     parentPipelineType?: string
     parentEnvironmentName?: string
+    hideInfoTabsContainer?: boolean
+}
+
+export interface CDMaterialState{
+  isSecurityModuleInstalled: boolean
 }
 
 export interface CDMaterialType {

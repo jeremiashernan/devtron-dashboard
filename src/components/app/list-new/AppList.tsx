@@ -17,7 +17,7 @@ import { ReactComponent as AddIcon } from '../../../assets/icons/ic-add.svg'
 import { getInitData, buildClusterVsNamespace, getNamespaces } from './AppListService'
 import { ServerErrors } from '../../../modals/commonTypes'
 import { AppListViewType } from '../config'
-import { URLS, AppListConstants, SERVER_MODE, DOCUMENTATION, Moment12HourFormat } from '../../../config'
+import { URLS, AppListConstants, SERVER_MODE, DOCUMENTATION, ModuleNameMap, Moment12HourFormat } from '../../../config'
 import { ReactComponent as Clear } from '../../../assets/icons/ic-error.svg'
 import DevtronAppListContainer from '../list/DevtronAppListContainer'
 import HelmAppList from './HelmAppList'
@@ -29,7 +29,6 @@ import '../list/list.css'
 import EAEmptyState, { EAEmptyStateType } from '../../common/eaEmptyState/EAEmptyState'
 import PageHeader from '../../common/header/PageHeader'
 import { ReactComponent as DropDown } from '../../../assets/icons/ic-dropdown-filled.svg'
-import { ModuleNameMap } from '../../v2/devtronStackManager/DevtronStackManager.utils'
 import ExportToCsv from '../../common/ExportToCsv/ExportToCsv'
 import { FILE_NAMES } from '../../common/ExportToCsv/constants'
 import { getAppList } from '../service'
@@ -781,7 +780,7 @@ export default function AppList({isSuperAdmin, appListCount} : AppListPropType) 
                         showPulsatingDot={showPulsatingDot}
                     />
                     <Filter
-                        rootClassName="no-margin-left"
+                        rootClassName="ml-0-imp"
                         position={showExportCsvButton ? 'left' : 'right'}
                         list={masterFilters.namespaces.filter((namespace) => namespace.toShow)}
                         labelKey="label"
@@ -821,7 +820,7 @@ export default function AppList({isSuperAdmin, appListCount} : AppListPropType) 
         let count = 0
         let keys = Object.keys(masterFilters)
         let appliedFilters = (
-            <div className="saved-filters__wrap position-rel">
+            <div className="saved-filters__wrap dc__position-rel">
                 {keys.map((key) => {
                     let filterType = ''
                     let _filterKey = ''
@@ -921,7 +920,7 @@ export default function AppList({isSuperAdmin, appListCount} : AppListPropType) 
                         (params.appType == AppListConstants.AppType.DEVTRON_APPS ||
                             (params.appType == AppListConstants.AppType.HELM_APPS && !fetchingExternalApps)) && (
                             <span>
-                                {lastDataSyncTimeString}{' '}
+                                {lastDataSyncTimeString}&nbsp;
                                 <button className="btn btn-link p-0 fw-6 cb-5" onClick={syncNow}>
                                     Sync now
                                 </button>
@@ -985,7 +984,7 @@ export default function AppList({isSuperAdmin, appListCount} : AppListPropType) 
                 {serverMode == SERVER_MODE.FULL &&
                     appCheckListRes.result?.appChecklist &&
                     Object.values(appCheckListRes.result.appChecklist).every((check) => check) && (
-                        <div className="app-create-child c-pointer" onClick={openDevtronAppCreateModel}>
+                        <div className="app-create-child cursor" onClick={openDevtronAppCreateModel}>
                             <AddIcon className="icon-dim-20 fcn-9" />
                             <div className="ml-8">
                                 <strong>Custom app</strong>
@@ -995,7 +994,7 @@ export default function AppList({isSuperAdmin, appListCount} : AppListPropType) 
                             </div>
                         </div>
                     )}
-                <div className="app-create-child c-pointer" onClick={redirectToHelmAppDiscover}>
+                <div className="app-create-child cursor" onClick={redirectToHelmAppDiscover}>
                     <ChartIcon className="icon-dim-20" />
                     <div className="ml-8">
                         <strong>From Chart store</strong>
@@ -1011,12 +1010,12 @@ export default function AppList({isSuperAdmin, appListCount} : AppListPropType) 
     return (
         <div>
             {dataStateType === AppListViewType.LOADING && (
-                <div className="loading-wrapper">
+                <div className="dc__loading-wrapper">
                     <Progressing pageLoader />
                 </div>
             )}
             {dataStateType === AppListViewType.ERROR && (
-                <div className="loading-wrapper">
+                <div className="dc__loading-wrapper">
                     <ErrorScreenManager code={errorResponseCode} />
                 </div>
             )}
