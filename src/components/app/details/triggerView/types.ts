@@ -1,5 +1,6 @@
 import { RouteComponentProps } from 'react-router'
 import { HostURLConfig } from '../../../../services/service.types'
+import { DockerConfigOverrideType } from '../../../ciPipeline/types'
 import { CIMaterialType } from './MaterialHistory'
 export type CDMdalTabType = 'SECURITY' | 'CHANGES'
 
@@ -361,6 +362,7 @@ export interface DockerBuildConfig {
     gitMaterialId: number
     dockerfileRelativePath: string
     args?: Map<string, string>
+    targetPlatform: any
 }
 
 export interface ExternalCiConfig {
@@ -412,6 +414,8 @@ export interface CiPipeline {
     appWorkflowId?: number
     beforeDockerBuildScripts?: Array<CiScript>
     afterDockerBuildScripts?: Array<CiScript>
+    isDockerConfigOverridden?: boolean
+    dockerConfigOverride?: DockerConfigOverrideType
 }
 
 export interface Material {
