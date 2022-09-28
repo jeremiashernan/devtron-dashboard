@@ -41,7 +41,7 @@ export default function App() {
 	const refreshing = useRef(false)
 	const [bgUpdated, setBGUpdated] = useState(false)
 	const [validating, setValidating] = useState(true)
-	const [forceReloadOnLocationChange, setForceReloadOnLocationChange] = useState(false)
+	const [forceUpdateOnLocationChange, setforceUpdateOnLocationChange] = useState(false)
 	const location = useLocation()
 	const { push } = useHistory()
 	const didMountRef = useRef(false);
@@ -128,8 +128,8 @@ export default function App() {
 	}
 
   useEffect(() => {
-      if (!forceReloadOnLocationChange) return
-      window.location.reload();
+      if (!forceUpdateOnLocationChange) return
+      update()
   }, [location])
 
 	useEffect(() => {
@@ -144,7 +144,7 @@ export default function App() {
 			else {
 				updateToastRef.current = toast.info(updateToastBody, { autoClose: false, closeButton: false })
 			}
-      setForceReloadOnLocationChange(true)
+      setforceUpdateOnLocationChange(true)
 		}
 		function onSuccess(reg) {
 			console.log('successfully installed')
