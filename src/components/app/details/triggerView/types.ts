@@ -1,5 +1,6 @@
 import { RouteComponentProps } from 'react-router'
 import { HostURLConfig } from '../../../../services/service.types'
+import { DockerConfigOverrideType } from '../../../ciPipeline/types'
 import { CIMaterialType } from './MaterialHistory'
 export type CDMdalTabType = 'SECURITY' | 'CHANGES'
 
@@ -83,11 +84,14 @@ export interface CIMaterialProps extends RouteComponentProps<CIMaterialRouterPro
     getWorkflows: () => void
     loader: boolean
     setLoader: (isLoading) => void
+    isFirstTrigger?: boolean
+    isCacheAvailable?: boolean
 }
 
 export interface CIMaterialState {
     regexValue: Record<number, { value: string; isInvalid: boolean }>
     selectedCIPipeline?: any
+    isBlobStorageConfigured?: boolean
 }
 
 export interface NodeAttr {
@@ -133,6 +137,7 @@ export interface NodeAttr {
     isRegex?: boolean
     regex?: string
     primaryBranchAfterRegex?: string
+    storageConfigured?: boolean
 }
 
 export interface DownStreams {
@@ -323,6 +328,7 @@ export interface DockerBuildConfig {
     gitMaterialId: number
     dockerfileRelativePath: string
     args?: Map<string, string>
+    targetPlatform: any
 }
 
 export interface ExternalCiConfig {
@@ -374,6 +380,8 @@ export interface CiPipeline {
     appWorkflowId?: number
     beforeDockerBuildScripts?: Array<CiScript>
     afterDockerBuildScripts?: Array<CiScript>
+    isDockerConfigOverridden?: boolean
+    dockerConfigOverride?: DockerConfigOverrideType
 }
 
 export interface Material {
