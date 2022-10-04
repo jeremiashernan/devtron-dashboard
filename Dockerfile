@@ -12,7 +12,7 @@ COPY tsconfig.json .
 COPY . .
 RUN echo REACT_APP_GIT_SHA=`git rev-parse --short HEAD` >> .env.production
 RUN echo `git rev-parse --short HEAD` > health.html
-RUN yarn build
+RUN npm run build
 #RUN apt update -y && apt install jq -y
 #RUN python linter.py | jq -C --tab .
 
