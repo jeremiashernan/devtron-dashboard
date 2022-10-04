@@ -1,6 +1,7 @@
 FROM node:16 AS builder
 
 WORKDIR /app
+COPY package.json .
 COPY yarn.lock .
 RUN yarn install
 
@@ -12,7 +13,7 @@ COPY tsconfig.json .
 COPY . .
 RUN echo REACT_APP_GIT_SHA=`git rev-parse --short HEAD` >> .env.production
 RUN echo `git rev-parse --short HEAD` > health.html
-RUN npm run build
+RUN yarn build
 #RUN apt update -y && apt install jq -y
 #RUN python linter.py | jq -C --tab .
 
